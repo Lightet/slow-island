@@ -1,5 +1,7 @@
 # 慢慢岛
 
+在线体验：[慢慢岛](https://lightet.github.io/slow-island/) · [直接去摸摸猫](https://lightet.github.io/slow-island/02-rainy-bookshop.html)
+
 十个可以停下来陪小动物玩一会儿的轻松小世界。纯静态 HTML、CSS 和 JavaScript，环境声在浏览器本地合成，不需要服务端、数据库或 API Key。
 
 从 `index.html` 进入。也可以运行 `python3 -m http.server 8769`，打开 `http://localhost:8769/`。

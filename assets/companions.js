@@ -53,7 +53,7 @@ const toScreen=p=>{const v=art.createSVGPoint();v.x=p.x;v.y=p.y;return v.matrixT
 function facePoint(offsetY=25){const p=toScreen({x:face.x,y:face.y+offsetY});return api.point({clientX:p.x,clientY:p.y});}
 function nearby(p,margin=.18){if(!p)return false;const r=target.getBoundingClientRect();return p.x>r.left-r.width*margin&&p.x<r.right+r.width*margin&&p.y>r.top-r.height*margin&&p.y<r.bottom+r.height*margin;}
 function hideCursor(){cursor.classList.remove('is-visible');art.classList.remove('has-companion-cursor');}
-function choose(next){mode=next;pose='idle';until=0;automaticHand=false;hit.dataset.state='idle';shelf.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===next)));cursor.dataset.mode=mode;cursor.innerHTML=mode==='pet'?'<img class="petting-hand" src="assets/petting-hand.webp" alt="">':icon(mode);instruction.textContent=descriptions[mode];hit.setAttribute('aria-label',`${{pet:'摸摸',toy:`用${profile[0]}陪`,treat:'喂一份小零食给'}[mode]}${api.fullName||name}`);hideCursor();}
+function choose(next){mode=next;reactAt=-Infinity;pose='idle';until=0;automaticHand=false;hit.dataset.state='idle';shelf.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===next)));cursor.dataset.mode=mode;cursor.innerHTML=mode==='pet'?'<img class="petting-hand" src="assets/petting-hand.webp" alt="">':icon(mode);instruction.textContent=descriptions[mode];hit.setAttribute('aria-label',`${{pet:'摸摸',toy:`用${profile[0]}陪`,treat:'喂一份小零食给'}[mode]}${api.fullName||name}`);hideCursor();}
 choose('pet');shelf.addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b){clearTimeout(replyTimer);choose(b.dataset.tool);}});
 function prop(kind){
  const p=facePoint(kind==='treat'?25:65),g=document.createElementNS(NS,'g');g.classList.add('companion-prop');g.innerHTML=icons[kind];art.append(g);
@@ -120,10 +120,10 @@ function frame(now){
  if(tail){const wag=stopped?0:Math.sin(clock*(active?3.5:1.2))*(active?4:1.7);tail.setAttribute('transform',`rotate(${wag.toFixed(2)} ${tail.dataset.pivotX} ${tail.dataset.pivotY})`);}
  const handActive=mode==='pet'&&active&&pose==='pet',show=handActive||pointer&&pointer.type!=='touch'&&fine.matches&&nearby(pointer,.06);
  cursor.classList.toggle('is-visible',!!show);art.classList.toggle('has-companion-cursor',!!show&&!!pointer&&pointer.type!=='touch');cursor.classList.toggle('is-nuzzling',handActive);
- if(show){let p=pointer?{x:pointer.x,y:pointer.y}:toScreen({x:face.x+80,y:face.y-28});
+ if(show){const m=portrait.getScreenCTM(),handScale=clamp(Math.hypot(m.a,m.b)*225,80,150)/150;cursor.style.width=mode==='pet'?`${150*handScale}px`:'48px';cursor.style.height=mode==='pet'?`${100*handScale}px`:'48px';let p=pointer?{x:pointer.x,y:pointer.y}:toScreen({x:face.x+80,y:face.y-28});
   if(handActive){const l=local||{x:face.x+80,y:face.y-28},side=l.x<face.x-25?-1:1;p=toScreen({x:face.x+side*clamp(Math.abs(l.x-face.x),65,102),y:clamp(l.y,face.y-65,face.y-5)});const wave=stopped?0:Math.sin((now-start)/240)*2;cursor.style.setProperty('--hand-angle',`${side*(wave-7)}deg`);cursor.style.setProperty('--hand-flip',side);}
   else{cursor.style.setProperty('--hand-angle','-5deg');cursor.style.setProperty('--hand-flip','1');}
-  const left=handActive&&local&&local.x<face.x-25,ox=mode==='pet'?(left?133:17):24,oy=mode==='pet'?57:24;
+  const left=handActive&&local&&local.x<face.x-25,ox=mode==='pet'?(left?133:17)*handScale:24,oy=mode==='pet'?57*handScale:24;
   cursor.style.transform=`translate3d(${(p.x-ox).toFixed(1)}px,${(p.y-oy).toFixed(1)}px,0)`;
  }
 }

@@ -16,7 +16,7 @@ function node(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(con
 function pos(e){const m=svg.getScreenCTM();if(!m)return{x:0,y:0};const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;try{return p.matrixTransform(m.inverse());}catch(_){return{x:0,y:0};}}
 function transform(n,s){if(n)n.setAttribute('transform',s);}
 const f=v=>Number(v).toFixed(2);
-function fit(){svg.setAttribute('viewBox',innerWidth<=760&&!S.quiet?'410 -200 800 900':'0 0 1200 700');svg.setAttribute('preserveAspectRatio','xMidYMid meet');}
+function fit(){svg.setAttribute('viewBox',innerWidth<=760&&!S.quiet?'425 -200 775 900':'0 0 1200 700');svg.setAttribute('preserveAspectRatio','xMidYMid meet');}
 fit();window.addEventListener('resize',fit,{passive:true});
 
 /* Local sound synthesis: no external files, streams, tracking or automatic sound.
@@ -220,7 +220,7 @@ function drawScene(dt){
   wheels.forEach(w=>transform(w,`rotate(${f(phase*100%360)})`));
   transform($('crank'),`translate(16 79) rotate(${f(phase*180/Math.PI)})`);
   for(const [side,offset,hx] of [['Far',Math.PI,-82],['Near',0,-68]]){
-   const a=phase+offset,px=16+Math.cos(a)*23,py=79+Math.sin(a)*23,hy=-88+bob;
+   const a=phase+offset,px=16+Math.cos(a)*23,py=79+Math.sin(a)*23,hy=-100+bob;
    const ax=px,ay=py-5,dx=ax-hx,dy=ay-hy,d=Math.hypot(dx,dy),upper=111,lower=108;
    const along=(upper*upper-lower*lower+d*d)/(2*d),across=Math.sqrt(Math.max(0,upper*upper-along*along));
    const kx=hx+along*dx/d+across*dy/d,ky=hy+along*dy/d-across*dx/d;
