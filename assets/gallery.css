@@ -1,0 +1,30 @@
+.hero .eyebrow { display: none; }
+.hero h1 { margin-top: 0; }
+.hero p { font-size: 15px; color: #63735d; }
+.hero-bottom span, .top-note { font-size: 11px; color: #63735d; }
+.preview-art { width: 100%; height: 100%; display: block; pointer-events: none; }
+.postcard .preview-art { height: 82%; border-radius: 7px; }
+.image-wrap .preview-art { transition: transform 400ms ease-out; }
+.card:hover .preview-art { transform: scale(1.04); }
+.filter { min-height: 44px; font-size: 14px; color: #5e7056; }
+.section-name small, .card-bottom small { font-size: 11px; color: #69795d; }
+.card p { font-size: 12px; color: #65785e; }
+.bottom, .postcard span { font-size: 12px; color: #66775f; }
+.card-copy { padding: 16px; }
+.card h2 { font-size: 19px; }
+.fallback-close, .stage:hover .fallback-close { opacity: 1; pointer-events: auto; font-size: 12px; min-height: 40px; }
+.serial { font-size: 10px; }
+::selection { background: #dce6d1; color: #344d40; }
+html { scrollbar-color: #a5b09a #f4f2e9; }
+@media (max-width: 780px) {
+  .postcards { width: calc(100% - 28px); }
+  .hero p { font-size: 14px; }
+  .card-copy { padding: 13px; }
+  .card h2 { font-size: 18px; }
+  .card p { font-size: 12px; }
+  .card-bottom small { font-size: 10px; }
+  .filters { flex-wrap: wrap; }
+  .filter { font-size: 12px; padding: 8px 10px; }
+  .section-name small { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .image-wrap .preview-art { transition: none; } .card:hover .preview-art { transform: none; } }

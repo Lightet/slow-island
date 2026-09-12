@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4f2e9">
+<title>慢慢骑 · 团团的海风小憩 · 头颈修正版</title>
+<style>
+:root{
+  color-scheme:light; --paper:#f4f2e9; --panel:#fbfaf5; --ink:#3c514c; --muted:#8a9487;
+  --line:#e3e5d8; --accent:#718d75; --soft:#edf0e5; --sky-top:#e9f0e9; --sky-bottom:#fff0d7;
+  --sea-top:#b2cfc3; --sea-bottom:#cee0cb; --dune:#d9dcba; --dune-light:#eee4c8;
+  --road-top:#edddbf; --road-bottom:#e4ceac; --cloud:#fffdf4; --hill:#93b6a3;
+  --scene-ink:#456056; --scene-muted:#7e9382; --sun:#eac189; --wave:#f6f6df;
+  --feather:#fffdf1; --feather-shade:#e4e8d5; --outline:#697461; --scarf:#89a68d;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Avenir Next",Avenir,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;transition:background 1.5s,color 1.5s}
+button,input,select{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button,select{color:inherit}button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #ad8e60;outline-offset:5px}button:disabled{cursor:default;opacity:.5}
+button{transition:background .2s,transform .2s,box-shadow .2s}button:active{transform:scale(.96)}button svg{pointer-events:none}.icon{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.page{width:min(1400px,calc(100% - 72px));margin:auto;padding:25px 0 17px}.masthead{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:23px}.brand{display:flex;align-items:center;gap:12px}.brand-logo{width:44px;height:44px}.brand-title{font-family:"Songti SC","STSong",Georgia,serif;font-size:22px;letter-spacing:.16em}.brand-sub{font-size:8px;color:var(--muted);letter-spacing:2.8px;margin-top:4px}.head-tools{display:flex;align-items:center;gap:10px}.head-note{font-size:10px;color:var(--muted);letter-spacing:1.3px;margin-right:13px}.pill,.icon-button{border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;justify-content:center;gap:8px;height:39px;border-radius:30px;padding:0 16px;font-size:11px;white-space:nowrap}.pill:hover,.icon-button:hover{background:var(--soft)}.icon-button{width:39px;padding:0}.pill .icon,.icon-button .icon{width:16px;height:16px}.sound-on #soundToggle{background:var(--accent);color:#fffdf4;border-color:transparent}.master-volume{display:none;align-items:center;gap:7px}.sound-on .master-volume{display:flex}.master-volume input{width:74px}.master-volume output{font-size:9px;color:var(--muted);width:25px;font-variant-numeric:tabular-nums}
+.world{border:1px solid var(--line);border-radius:25px;overflow:hidden;background:var(--panel);box-shadow:0 15px 55px -34px #47513c38}.scene{position:relative;aspect-ratio:1440/800;overflow:hidden;isolation:isolate;background:var(--sky-top)}.scene-art{display:block;width:100%;height:100%;user-select:none;-webkit-user-select:none;touch-action:pan-y}.scene-art .interactive{cursor:pointer;touch-action:none}.scene-art .cloud-drag{cursor:grab;touch-action:none}.scene-art .cloud-drag:active{cursor:grabbing}.scene-art .sea-hit{cursor:crosshair;touch-action:pan-y}.scene-art .interactive:hover .pet-highlight{opacity:.28}.pet-highlight{opacity:0;transition:opacity .4s;pointer-events:none}
+.sky-start{stop-color:var(--sky-top)}.sky-end{stop-color:var(--sky-bottom)}.sea-start{stop-color:var(--sea-top)}.sea-end{stop-color:var(--sea-bottom)}.road-start{stop-color:var(--road-top)}.road-end{stop-color:var(--road-bottom)}stop{transition:stop-color 1.7s}.scene-art .theme-fill{transition:fill 1.7s}.sun-only,.night-only,.rain-only{transition:opacity 1.7s;pointer-events:none}.night-only,.rain-only{opacity:0}.sun-only{opacity:1}
+.hero-copy{position:absolute;top:10.2%;left:6%;pointer-events:none;color:var(--scene-ink);transition:opacity .8s,color 1.5s}.eyebrow{font-size:8px;letter-spacing:2.4px;display:flex;align-items:center;gap:10px;color:var(--scene-muted)}.eyebrow:before{content:"";width:20px;height:1px;background:currentColor}.hero-copy h1{font-family:"Songti SC","STSong","Noto Serif CJK SC",Georgia,serif;font-size:clamp(31px,3.65vw,53px);font-weight:500;letter-spacing:.075em;line-height:1.4;margin:18px 0 15px}.hero-copy p{font-size:12px;line-height:2.05;color:var(--scene-muted);letter-spacing:.75px;margin:0}.little-path{margin-top:18px;width:114px;color:var(--scene-muted);opacity:.6}
+.weather-picker{position:absolute;right:24px;top:24px;display:flex;padding:4px;background:#fffdf275;border:1px solid #fffdf25c;backdrop-filter:blur(14px);border-radius:30px;gap:2px}.weather-picker button{height:32px;border:0;background:transparent;display:flex;align-items:center;gap:6px;padding:0 13px;border-radius:20px;color:var(--scene-muted);font-size:10px;letter-spacing:.6px}.weather-picker button .icon{width:14px;height:14px}.weather-picker button[aria-pressed="true"]{background:#fffdf4cf;color:#576951;box-shadow:0 2px 7px #6a785518}.scene-hint{position:absolute;left:6%;bottom:5.8%;font-size:10px;letter-spacing:1px;color:var(--scene-ink);opacity:.65;pointer-events:none}.scene-hint .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:8px;vertical-align:middle}.scene-status{position:absolute;right:26px;bottom:23px;display:flex;align-items:center;gap:9px;color:var(--scene-ink);font-size:9px;letter-spacing:1px;background:#fffdf246;padding:9px 13px;border-radius:20px;pointer-events:none;backdrop-filter:blur(6px)}.equalizer{height:13px;display:flex;align-items:center;gap:2px}.equalizer i{width:2px;background:currentColor;height:4px;border-radius:3px}.sound-on .equalizer i{animation:eq 1.6s ease-in-out infinite alternate}.equalizer i:nth-child(2){height:11px;animation-delay:-.8s}.equalizer i:nth-child(3){height:7px;animation-delay:-.4s}.equalizer i:nth-child(4){height:13px;animation-delay:-1.2s}@keyframes eq{from{transform:scaleY(.45)}to{transform:scaleY(1)}}
+.bird-bubble{position:absolute;left:61%;top:19%;max-width:30%;padding:11px 18px;border:1px solid #fffef5c7;border-radius:24px 24px 24px 5px;background:#fffdf2da;color:#68755f;font-size:11px;letter-spacing:.6px;box-shadow:0 4px 12px #6e87630b;pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .5s,transform .5s;white-space:nowrap}.bird-bubble.visible{opacity:1;transform:translateY(0)}
+.breathe-guide{position:absolute;left:8.4%;top:57%;display:flex;align-items:center;gap:16px;color:var(--scene-ink);opacity:0;pointer-events:none;transition:opacity .8s}.breathing .breathe-guide{opacity:1}.breathing .little-path{opacity:0}.breath-orbit{width:68px;height:68px;border-radius:50%;border:1px solid #859e7d45;display:grid;place-items:center;position:relative}.breath-orbit:before{content:"";position:absolute;inset:8px;border:1px dashed #859e7d55;border-radius:50%}.breath-core{width:35px;height:35px;border-radius:50%;background:#96af8963;box-shadow:0 0 20px #c6d6a545;will-change:transform}.breath-copy strong{display:block;font-size:12px;font-weight:500;letter-spacing:3px}.breath-copy span{display:block;color:var(--scene-muted);font-size:9px;margin-top:7px;letter-spacing:1px}
+.control-deck{display:grid;grid-template-columns:1.05fr 1.25fr .83fr;padding:25px 29px 23px;gap:29px;background:var(--panel)}.deck-section+ .deck-section{border-left:1px solid var(--line);padding-left:29px}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:16px;font-size:11px;letter-spacing:.8px}.section-heading small{font-size:8px;font-weight:400;color:var(--muted);letter-spacing:1px}.play-actions{display:flex;align-items:start;gap:12px}.action{background:transparent;border:0;padding:0;display:flex;align-items:center;flex-direction:column;gap:7px;min-width:49px;color:var(--muted);font-size:9px;letter-spacing:.6px;touch-action:manipulation}.action .tile{width:48px;height:45px;border:1px solid var(--line);border-radius:13px;display:grid;place-items:center;background:var(--soft);color:var(--accent);transition:background .2s,transform .2s,border-color .2s}.action:hover .tile{background:#e1e8d8;border-color:#c2cfb8;transform:translateY(-2px)}.action .icon{width:22px;height:22px}.action#feedButton{touch-action:none}.action#feedButton .tile{background:#f5ebd8;color:#b58b51}.action#bubbleButton .tile{background:#e8eef0;color:#80999d}.action#bellButton .tile{background:#f1e8dc;color:#ae926c}.action-note{font-size:8px;letter-spacing:.5px;color:var(--muted);margin:12px 0 0;line-height:1.5}.mixer{display:grid;grid-template-columns:1fr 1fr;column-gap:23px;row-gap:13px}.mix-channel label{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:9px;letter-spacing:.7px}.mix-channel label span{display:flex;align-items:center;gap:6px}.mix-channel .icon{width:13px;height:13px;color:var(--accent)}.mix-channel output{font-size:8px;color:var(--muted);font-variant-numeric:tabular-nums}.mix-channel input{display:block;width:100%;margin-top:8px}
+input[type="range"]{--fill:50%;height:5px;border-radius:20px;appearance:none;-webkit-appearance:none;cursor:pointer;background:linear-gradient(to right,var(--accent) 0,var(--accent) var(--fill),var(--line) var(--fill),var(--line) 100%);margin-left:0;margin-right:0}input[type="range"]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;background:var(--panel);border:2px solid var(--accent);border-radius:50%;box-shadow:0 1px 2px #37483610}input[type="range"]::-moz-range-thumb{width:9px;height:9px;background:var(--panel);border:2px solid var(--accent);border-radius:50%}.pace-row{display:flex;align-items:center;gap:11px;margin-bottom:17px}.pace-row input{flex:1;min-width:40px}.pace-row output{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:29px}.tiny-button{width:29px;height:29px;background:var(--soft);border:1px solid var(--line);border-radius:50%;padding:7px;flex-shrink:0}.tiny-button .icon{width:13px;height:13px}.gentle-buttons{display:flex;gap:7px;flex-wrap:wrap}.mini{height:29px;border-radius:20px;border:1px solid var(--line);background:transparent;padding:0 10px;display:flex;align-items:center;gap:5px;font-size:9px;letter-spacing:.3px}.mini .icon{width:13px;height:13px}.mini[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--accent)}.timer-wrap{display:flex;align-items:center;gap:5px}.timer-wrap select{border:0;background:transparent;font-size:9px;max-width:92px;cursor:pointer;outline-offset:1px}.timer-wrap .icon{width:12px;height:12px}.timer-count{font-size:8px;font-variant-numeric:tabular-nums;color:var(--muted);min-height:12px;margin-top:10px;letter-spacing:.5px}
+.footer{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:16px 3px 0;font-size:9px;color:var(--muted);letter-spacing:.7px}.footer .fine-print{font-size:8px;letter-spacing:.65px}.footer kbd{font:inherit;border:1px solid var(--line);border-radius:3px;padding:1px 4px;margin-right:4px}.toast{position:fixed;bottom:23px;left:50%;transform:translate(-50%,8px);max-width:calc(100% - 32px);padding:12px 21px;border-radius:25px;background:#4d6158ef;color:#fffcf1;font-size:11px;letter-spacing:.5px;box-shadow:0 4px 25px #253a3221;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:20;white-space:normal;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}.fish-ghost{position:fixed;left:0;top:0;width:56px;height:38px;pointer-events:none;z-index:30;filter:drop-shadow(0 3px 6px #556b4933);display:none}.fish-ghost .icon{width:100%;height:100%;fill:#a8c5bc;stroke:#668f87;stroke-width:1.2}.dragging-fish{cursor:grabbing!important}.drop-ready .pet-highlight{opacity:.7!important}.immerse-exit{display:none;position:fixed;top:20px;right:20px;z-index:15;border-color:#ffffff55;background:#fcfaeece;backdrop-filter:blur(15px);color:#536354}.immerse-exit .icon{width:15px;height:15px}.immersive{overflow:hidden}.immersive .page{width:100%;padding:0}.immersive .masthead,.immersive .control-deck,.immersive .footer,.immersive .hero-copy,.immersive .scene-hint,.immersive .weather-picker{display:none}.immersive .world{border:0;border-radius:0;box-shadow:none}.immersive .scene{width:100vw;height:100dvh;aspect-ratio:auto}.immersive .scene-art{object-fit:contain}.immersive .immerse-exit{display:flex}.immersive .scene-status{bottom:24px;right:24px}.immersive .bird-bubble{display:none}.immersive .breathe-guide{left:7%;top:auto;bottom:9%}.no-script{padding:10px 20px;text-align:center;font-size:12px;color:#956c4e;background:#f8ebd3}
+body[data-weather="rain"]{--sky-top:#dce6e3;--sky-bottom:#edf0df;--sea-top:#a9c5bb;--sea-bottom:#c0d3c5;--cloud:#edf0e6;--sun:#d5d7b0;--scene-muted:#7d9187}body[data-weather="rain"] .rain-only{opacity:1}body[data-weather="rain"] .sun-only{opacity:.18}
+body[data-weather="night"]{color-scheme:dark;--paper:#222c38;--panel:#2d3840;--ink:#d6dfd2;--muted:#94a79e;--line:#43524f;--accent:#a1b9a1;--soft:#374740;--sky-top:#34465c;--sky-bottom:#8d9396;--sea-top:#6b9295;--sea-bottom:#a0b5ab;--dune:#7b9586;--dune-light:#a4ac95;--road-top:#b8b99f;--road-bottom:#96a48c;--cloud:#becdd2;--hill:#526e76;--scene-ink:#e5ead9;--scene-muted:#c2cec0;--wave:#d7e0ce;--feather:#f2f0dc;--feather-shade:#d1dbc7;--outline:#5c7166;--scarf:#a2b6a0}body[data-weather="night"] .night-only{opacity:1}body[data-weather="night"] .sun-only{opacity:0}body[data-weather="night"] .weather-picker{background:#53667565;border-color:#d6e0df25}body[data-weather="night"] .weather-picker button[aria-pressed="true"]{background:#d6e0d5d9}body[data-weather="night"] .action:hover .tile{background:#46584b}body[data-weather="night"] .action#feedButton .tile{background:#544e40;color:#d7bc83}body[data-weather="night"] .action#bubbleButton .tile{background:#3e5260;color:#b3cdd0}body[data-weather="night"] .action#bellButton .tile{background:#554b41;color:#d7bc8c}body[data-weather="night"].sound-on #soundToggle{color:#354c41}body[data-weather="night"] .scene-status,body[data-weather="night"] .scene-hint{color:#455f56}body[data-weather="night"] .breathe-guide .breath-core{background:#d6e0ba70}body[data-weather="night"] .breath-orbit,body[data-weather="night"] .breath-orbit:before{border-color:#d6e0ba50}
+@media(min-width:851px) and (max-height:850px){.page{width:min(1200px,calc(100% - 48px));padding-top:17px}.masthead{margin-bottom:16px}.scene{aspect-ratio:1440/680}.control-deck{padding-top:20px;padding-bottom:18px}.hero-copy h1{font-size:40px;margin-top:15px;margin-bottom:12px}.hero-copy p{font-size:11px}.bird-bubble{top:16%}}
+@media(min-width:1700px){.page{padding-top:34px}.masthead{margin-bottom:26px}}
+@media(max-width:1100px){.page{width:calc(100% - 40px)}.control-deck{padding:22px;gap:22px;grid-template-columns:1fr 1.1fr .9fr}.deck-section+ .deck-section{padding-left:22px}.play-actions{gap:8px}.action .tile{width:43px;height:42px}.action{min-width:43px}.section-heading small{display:none}.hero-copy h1{font-size:40px}.hero-copy p{font-size:11px}.head-note{display:none}.mixer{column-gap:15px}.bird-bubble{font-size:10px}.gentle-buttons{gap:6px}.timer-wrap select{max-width:79px}}
+@media(max-width:850px){.control-deck{grid-template-columns:1fr 1fr;gap:23px}.deck-section:last-child{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);padding:18px 0 0;display:grid;grid-template-columns:1fr 1fr;column-gap:25px}.deck-section:last-child .section-heading{margin-bottom:9px}.pace-row{grid-column:1;grid-row:2;margin:0}.gentle-buttons{grid-column:2;grid-row:2;justify-content:flex-end}.timer-count{grid-column:2;grid-row:1;margin:0;text-align:right;align-self:center}.hero-copy h1{font-size:34px}.hero-copy p{font-size:10px}.eyebrow{font-size:7px}.little-path{display:none}.weather-picker{top:16px;right:16px}.weather-picker button{padding:0 10px;font-size:9px}.breathe-guide{top:64%;left:7%}.breath-orbit{width:52px;height:52px}.breath-core{width:29px;height:29px}.scene-hint{font-size:8px}.scene-status{font-size:8px;padding:7px 10px;bottom:17px;right:17px}.bird-bubble{top:20%;font-size:9px;padding:9px 13px}.footer .fine-print{display:none}}
+@media(max-width:620px){.page{width:calc(100% - 24px);padding-top:16px}.masthead{margin-bottom:16px;gap:9px}.brand-logo{width:35px;height:35px}.brand{gap:8px}.brand-title{font-size:18px}.brand-sub{font-size:6px;letter-spacing:1.7px}.head-tools{gap:7px}.pill{height:34px;font-size:9px;padding:0 11px;gap:6px}.icon-button{width:34px;height:34px}.sound-on .master-volume{display:flex!important}.master-volume input{width:43px}.master-volume output{display:none}.world{border-radius:20px}.scene{aspect-ratio:650/840}.hero-copy{top:6.4%;left:7%}.hero-copy h1{font-size:29px;line-height:1.35;margin:12px 0 9px}.hero-copy p{font-size:10px;line-height:1.8}.hero-copy p br{display:none}.hero-copy p{max-width:142px;display:none}.eyebrow{font-size:6px;letter-spacing:1.5px;gap:7px}.eyebrow:before{width:12px}.weather-picker{right:13px;top:13px;padding:3px;gap:0}.weather-picker button{padding:0 9px;height:29px}.weather-picker button .icon{width:14px;height:14px}.weather-picker button span{display:none}.scene-hint{font-size:8px;bottom:5.7%;letter-spacing:.4px}.scene-status{bottom:4.8%;right:14px;padding:7px 9px;letter-spacing:.3px;font-size:7px}.scene-status .equalizer{display:none}.bird-bubble{top:27.5%;left:40%;max-width:57%;font-size:8px;padding:8px 11px;border-radius:17px 17px 17px 4px;letter-spacing:0}.control-deck{padding:19px 16px 17px;gap:18px;grid-template-columns:1fr}.deck-section+ .deck-section{border:0;padding-left:0}.deck-section:nth-child(2){border-top:1px solid var(--line);padding-top:17px}.section-heading{margin-bottom:12px;font-size:10px}.section-heading small{display:block;font-size:7px}.play-actions{justify-content:space-between;padding:0 9px;gap:16px}.action{font-size:9px;gap:7px}.action .tile{width:54px;height:47px;border-radius:13px}.action-note{display:none}.mixer{column-gap:23px;row-gap:15px}.mix-channel label{font-size:9px}.mix-channel input{margin-top:9px;height:5px}.deck-section:last-child{gap:0 19px;padding-top:17px}.gentle-buttons{flex-wrap:nowrap;gap:5px}.mini{padding:0 8px;font-size:8px;height:29px}.mini .icon{width:11px}.timer-wrap select{font-size:8px;max-width:71px}.pace-row{gap:8px}.pace-row output{font-size:9px}.timer-count{font-size:7px;letter-spacing:0}.footer{font-size:8px;line-height:1.8;margin:13px 3px 0}.footer-shortcuts{display:none}.breathe-guide{left:7%;top:39%;gap:9px;flex-direction:column;text-align:center}.breath-orbit{width:49px;height:49px}.breath-copy strong{font-size:10px}.breath-copy span{font-size:7px}.breathing .hero-copy p{opacity:0}.immersive .scene{height:100dvh}.immersive .scene-hint{display:none}.immersive .breathe-guide{top:auto;bottom:8%;left:8%;flex-direction:row}.immersive .scene-status{font-size:9px}.immerse-exit{top:15px;right:15px}.toast{font-size:10px;bottom:18px;line-height:1.7}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.sound-on .equalizer i{animation:none}button{transition:background .15s!important}.action:hover .tile{transform:none}.bird-bubble{transform:none}.breath-core{will-change:auto}}
+</style>
+<link rel="stylesheet" href="assets/companions.css"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"></head>
+<body data-weather="sea">
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 8q2.5-3 5 0t5 0t5 0t5 0M2 14q2.5-3 5 0t5 0t5 0t5 0M3 20q2-2 4 0t5 0t5 0t4 0"/></symbol>
+<symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a2 2 0 1 1-2 2M4 16h6a3 3 0 1 1-3 3"/></symbol>
+<symbol id="i-rain" viewBox="0 0 24 24"><path d="M5 13a4 4 0 1 1 .5-8 5 5 0 0 1 9.5 1A3.5 3.5 0 1 1 18 13H5M7 17l-1 3m6-3-1 3m6-3-1 3"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15a8.5 8.5 0 0 1-11-11 8.5 8.5 0 1 0 11 11Z"/><path d="M18 3v4m-2-2h4"/></symbol>
+<symbol id="i-noise" viewBox="0 0 24 24"><path d="M3 10v4m4-8v12m5-15v18m5-15v12m4-8v4"/></symbol>
+<symbol id="i-volume" viewBox="0 0 24 24"><path d="m11 5-5 4H3v6h3l5 4ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+<symbol id="i-muted" viewBox="0 0 24 24"><path d="m11 5-5 4H3v6h3l5 4ZM16 9l5 6m0-6-5 6"/></symbol>
+<symbol id="i-focus" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M8 5v5H3m13-5v5h5M3 15h5v5m13-5h-5v5"/></symbol>
+<symbol id="i-fish" viewBox="0 0 24 24"><path d="M7 12 2 7v10Zm0 0c3-7 10-7 15 0-5 7-12 7-15 0Z"/><circle cx="17.5" cy="11.4" r=".7" fill="currentColor" stroke="none"/><path d="m11 7 2-3 3 3m-5 10 2 3 3-3"/></symbol>
+<symbol id="i-pet" viewBox="0 0 24 24"><path d="M7 12V5a1.6 1.6 0 0 1 3.2 0v6-7a1.6 1.6 0 0 1 3.2 0v7-5a1.6 1.6 0 0 1 3.2 0v6-3a1.6 1.6 0 0 1 3.2 0v6c0 4-2.3 7-6.5 7-3 0-4.7-1.6-6.3-4L3.5 13a1.5 1.5 0 0 1 2.4-1.8L8 14"/></symbol>
+<symbol id="i-bubble" viewBox="0 0 24 24"><circle cx="9" cy="14" r="6"/><circle cx="18" cy="6" r="3"/><circle cx="20" cy="18" r="1.5"/><path d="M6 12q1-2 3-2M17 5h1"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M5 15a7 7 0 1 1 14 0ZM3 17h18M12 4V2m-3 19h6M19 6l2-2"/></symbol>
+<symbol id="i-breath" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.3"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="2 4"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14m8-14v14" stroke-width="3"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20S2 14 2 8.5C2 3 9 2 12 7c3-5 10-4 10 1.5C22 14 12 20 12 20Z"/></symbol>
+</defs></svg>
+<main class="page">
+<header class="masthead">
+  <div class="brand">
+    <svg class="brand-logo" viewBox="0 0 48 48" aria-hidden="true"><rect x="1" y="1" width="46" height="46" rx="16" fill="#e8ecdf"/><path d="M12 32c-3-8 2-13 9-12-2-8 4-12 9-8 3 2 3 6 1 8l10 3c-3 4-8 6-12 3-2 9-12 11-17 6Z" fill="#fffdf1" stroke="#83947a" stroke-width="1.3"/><path d="m31 19 11 4-12 1" fill="#eac581" stroke="#b79e68" stroke-width="1"/><circle cx="28" cy="16" r="1.4" fill="#58634e"/><ellipse cx="26" cy="20" rx="2" ry="1.1" fill="#e6b8a0"/><path d="M16 28q5 3 8-2" stroke="#b0bea1" stroke-width="1.3" fill="none"/></svg>
+    <div><div class="brand-title">慢慢骑</div><div class="brand-sub">BEAK &amp; BREEZE</div></div>
+  </div>
+  <div class="head-tools">
+    <span class="head-note">给自己，一小会儿空白。</span>
+    <div class="master-volume"><label for="volume" class="sr-only">总音量</label><input id="volume" type="range" min="0" max="100" value="32"><output id="volumeValue" for="volume">32%</output></div>
+    <button id="soundToggle" class="pill" type="button" aria-pressed="false" title="打开或关闭环境声 · M"><svg class="icon"><use id="soundIcon" href="#i-muted"/></svg><span id="soundText">打开声音</span></button>
+    <button id="immersiveButton" class="icon-button" type="button" title="沉浸模式 · Esc 退出" aria-label="进入沉浸模式"><svg class="icon"><use href="#i-focus"/></svg></button>
+  </div>
+</header>
+<section class="world" aria-label="团团的海边小憩">
+<div id="scene" class="scene">
+<svg id="sceneSvg" class="scene-art" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg" role="group" aria-labelledby="sceneTitle sceneDesc">
+<title id="sceneTitle">鹈鹕团团，沿着海岸慢慢骑</title><desc id="sceneDesc">一只圆滚滚、戴绿围巾的白色鹈鹕骑着粉橘色自行车。可以摸摸它、喂鱼、摇铃、戳泡泡、点击海面泛起涟漪，或者拖动云朵。下方按钮也可完成主要互动。</desc>
+<defs>
+  <linearGradient id="sky" x2="0" y2="1"><stop class="sky-start"/><stop offset="1" class="sky-end"/></linearGradient>
+  <linearGradient id="ocean" x2="0" y2="1"><stop class="sea-start"/><stop offset="1" class="sea-end"/></linearGradient>
+  <linearGradient id="road" x2="0" y2="1"><stop class="road-start"/><stop offset="1" class="road-end"/></linearGradient>
+  <linearGradient id="bill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f1ca85"/><stop offset="1" stop-color="#e8b071"/></linearGradient>
+  <linearGradient id="pouch" x2=".5" y2="1"><stop stop-color="#f3d29a"/><stop offset="1" stop-color="#e9b583"/></linearGradient>
+  <radialGradient id="sunGlow"><stop stop-color="#efd2a7" stop-opacity=".4"/><stop offset="1" stop-color="#efd2a7" stop-opacity="0"/></radialGradient>
+  <radialGradient id="bubbleFill" cx=".32" cy=".26" r=".8"><stop stop-color="#ffffff" stop-opacity=".32"/><stop offset=".65" stop-color="#eaf2e3" stop-opacity=".08"/><stop offset="1" stop-color="#fff2d9" stop-opacity=".33"/></radialGradient>
+  <pattern id="wavePattern" width="240" height="49" patternUnits="userSpaceOnUse"><path d="M13 15h48m45 23h66m38-31h14" fill="none" stroke="var(--wave)" stroke-width="2.5" stroke-linecap="round" opacity=".65"/><path d="M34 44h16m91-30h30" stroke="#7cae9d" stroke-width="1.3" opacity=".27"/></pattern>
+  <pattern id="boardPattern" width="155" height="175" patternUnits="userSpaceOnUse"><path d="M80 0-18 175M235 0 137 175" stroke="#ab9673" stroke-width="1.3" opacity=".17"/><path d="M0 48h155M0 121h155" stroke="#ab9673" stroke-width="1" opacity=".1"/></pattern>
+  <pattern id="sandPattern" width="180" height="80" patternUnits="userSpaceOnUse"><path d="M10 24h3m71 18h4m60-24h2m10 54h3" stroke="#9c916e" stroke-width="2" stroke-linecap="round" opacity=".22"/></pattern>
+  <g id="cloudShape"><path d="M0 27c9-11 20-12 33-8C33 0 61-8 73 8c12-8 32-2 35 12 17-5 28 1 32 10H4q-7 0-4-3Z" fill="var(--cloud)" class="theme-fill"/></g>
+  <g id="duneUnit"><path d="M0 575Q120 539 220 558T453 562T700 558T916 567T1120 559T1440 565V620H0Z" fill="var(--dune)" class="theme-fill"/><path d="M0 599q136-26 280-12t280 6 330-4 260 8 290-8v32H0Z" fill="var(--dune-light)" class="theme-fill"/><g fill="none" stroke="#91a47e" stroke-width="2.5" stroke-linecap="round"><path d="M99 584q-1-24-13-30m13 30q10-17 19-21m-19 21q-3-29 3-43M397 598q-7-25-20-26m20 26q2-19 12-28M1190 587q-8-26-21-30m21 30q11-28 25-29m-25 29q-4-33 1-40"/></g></g>
+  <g id="grassUnit"><g fill="none" stroke="#859b76" stroke-width="3" stroke-linecap="round"><path d="M121 782q-4-28-24-40m24 40q12-20 28-29m-28 29q-5-40 1-52M1115 798q-8-38-23-43m23 43q9-30 24-37m-24 37q0-44 8-51"/></g><g fill="#edf0cf"><circle cx="146" cy="751" r="3.2"/><circle cx="1091" cy="754" r="3.2"/></g><path d="M0 789Q135 770 261 788t263 3 333 0 250-5 333 5v20H0Z" fill="#a9b590"/></g>
+  <g id="foot"><path d="M-8-10q7-4 10 4l7 4 16 6-8 5-10-2-10 3-13-4q-3-5 4-9Z" fill="#e8b56f" stroke="#ad8f5f" stroke-width="1.8" stroke-linejoin="round"/><path d="m0-1 9 8m-3-7 10 6" fill="none" stroke="#c99c63" stroke-width="1.3"/><rect x="-17" y="10" width="45" height="6" rx="3" fill="#697768"/></g>
+  <g id="littleFish"><path d="m-15 0-13-10v20Z" fill="#8aafa4"/><path d="M-18 0C-8-16 10-14 23 0 10 14-8 16-18 0Z" fill="#afcbc0" stroke="#7f9f91" stroke-width="1.5"/><path d="m-7-10 6-6 6 7m-12 19 6 5 5-6" fill="#93b5a8"/><circle cx="12" cy="-2" r="2" fill="#587b71"/><path d="M0-6q-6 6 0 12" fill="none" stroke="#d9e4ca" stroke-width="2"/></g>
+  <g id="littleHeart"><path d="M0 9S-13 1-12-6C-11-14-3-14 0-7 4-15 12-13 12-6 12 1 0 9 0 9Z" fill="#dca997"/></g>
+</defs>
+<rect width="1440" height="800" fill="url(#sky)"/>
+<g id="celestial" class="interactive" role="button" tabindex="0" aria-label="切换晴海、细雨或月夜" data-action="weather"><circle cx="1175" cy="153" r="103" fill="url(#sunGlow)" class="sun-only"/><circle cx="1175" cy="153" r="49" fill="var(--sun)" class="sun-only theme-fill"/><circle cx="1175" cy="153" r="61" stroke="#e9cda3" stroke-width="1.1" fill="none" class="sun-only" opacity=".3"/><g class="night-only"><path d="M1198 108a47 47 0 1 0 22 69 41 41 0 0 1-22-69Z" fill="#f3e9bb"/><circle cx="1160" cy="172" r="4" fill="#ddd5af" opacity=".65"/><circle cx="1147" cy="147" r="6" fill="#ddd5af" opacity=".5"/></g><circle cx="1175" cy="153" r="63" fill="transparent"/></g>
+<g id="stars" class="night-only" fill="#f5ecc6"></g>
+<g id="clouds"><g class="cloud-drag" id="cloud1" data-cloud="0" opacity=".8"><use href="#cloudShape"/></g><g class="cloud-drag" id="cloud2" data-cloud="1" opacity=".65"><use href="#cloudShape"/></g><g class="cloud-drag" id="cloud3" data-cloud="2" opacity=".72"><use href="#cloudShape"/></g><g class="cloud-drag" id="cloud4" data-cloud="3" opacity=".62"><use href="#cloudShape"/></g></g>
+<g id="distantBirds" fill="none" stroke="#92a48d" stroke-width="2" stroke-linecap="round" opacity=".65"><path id="gullA" d="M568 210q9-8 19 0 9-8 19 0"/><path id="gullB" d="M613 186q7-6 14 0 7-6 14 0"/></g>
+<path d="M0 397Q280 389 551 396t889-2v224H0Z" fill="url(#ocean)"/><path d="M0 394q220-9 430 0t510 0 500-3" stroke="var(--wave)" stroke-width="2" fill="none" opacity=".6"/>
+<path d="M0 397q72-14 112-7 67-35 113-19 56-15 108 19l88 8Z" fill="var(--hill)" opacity=".4" class="theme-fill"/><path d="M1243 396q33-17 79-11 57-25 118-21v34Z" fill="var(--hill)" opacity=".28" class="theme-fill"/>
+<rect y="407" width="1440" height="180" fill="url(#wavePattern)"/>
+<g id="lighthouse" opacity=".83"><path d="M211 396q55-32 105 0Z" fill="#9fb395"/><path d="m246 388 5-73h24l7 73Z" fill="#f5efdc" stroke="#96a991" stroke-width="1.2"/><path d="m249 344-2 17h33l-2-17Z" fill="#ce9980"/><rect x="249" y="302" width="28" height="14" rx="2" fill="#708c7e"/><path d="m245 302 18-12 18 12Z" fill="#be8c6e"/><path d="M255 305v8m8-8v8m8-8v8" stroke="#eae4c8" stroke-width="3"/><path d="M259 388v-12q4-7 9 0v12" fill="#97aa92"/><path d="M263 290v-8" stroke="#97a18b" stroke-width="1.5"/></g>
+<g id="boat" class="interactive" data-action="boat" role="button" tabindex="0" aria-label="轻轻摇一摇小帆船" transform="translate(1200 453)"><path d="M-29 4h59l-10 11h-40Z" fill="#8c9f87"/><path d="M1-48v53" stroke="#869c83" stroke-width="2"/><path d="M-3-44-26 0h23Z" fill="#fff6df"/><path d="m6-30 19 31H6Z" fill="#efd6ab"/><path d="M-32 20h67" stroke="#f5f4d9" stroke-width="2" stroke-linecap="round"/><rect x="-42" y="-52" width="85" height="80" fill="transparent"/></g>
+<rect class="sea-hit" id="seaHit" x="0" y="404" width="1440" height="149" fill="transparent"/>
+<g id="waterEffects" pointer-events="none"></g>
+<g id="dunes"><use href="#duneUnit"/><use href="#duneUnit" x="1440"/></g>
+<path d="M0 613q450-10 750-2t690-3v192H0Z" fill="url(#road)"/><path d="M0 613q450-10 750-2t690-3" fill="none" stroke="#fbf0d5" stroke-width="5" opacity=".8"/><rect y="622" width="1440" height="178" fill="url(#boardPattern)"/><rect y="622" width="1440" height="178" fill="url(#sandPattern)"/>
+<g id="roadside" transform="translate(1338 0)"><path d="M0 592v72" stroke="#9ba389" stroke-width="5"/><rect x="-24" y="541" width="48" height="61" rx="23" fill="#91a489" stroke="#f5ecd2" stroke-width="2.5"/><path d="M-12 563q6-7 12 0t12 0" stroke="#f5f0d5" stroke-width="2" fill="none"/><path d="M-7 581h14m-5-4 5 4-5 4" fill="none" stroke="#f5f0d5" stroke-width="2" stroke-linecap="round"/></g>
+<ellipse id="bikeShadow" cx="866" cy="710" rx="244" ry="14" fill="#778568" opacity=".13"/>
+<g id="bikeRig">
+  <g id="rearWheel" transform="translate(716 626)"><circle r="81" fill="#f5ecd5" fill-opacity=".2" stroke="#697b6e" stroke-width="10"/><circle r="74" fill="none" stroke="#f4edd8" stroke-width="3"/><g id="rearSpokes" stroke="#879c88" stroke-width="1.5"><path d="M-72 0H72M0-72V72M-51-51 51 51M-51 51 51-51M-66-28 66 28M-28-66 28 66M-66 28 66-28M-28 66 28-66"/><rect x="-3" y="-57" width="6" height="16" rx="3" fill="#e6b578" stroke="#fae9c3" stroke-width="1.5"/></g><circle r="8" fill="#d3cbb0" stroke="#758573" stroke-width="2"/></g>
+  <g id="frontWheel" transform="translate(1019 626)"><circle r="81" fill="#f5ecd5" fill-opacity=".2" stroke="#697b6e" stroke-width="10"/><circle r="74" fill="none" stroke="#f4edd8" stroke-width="3"/><g id="frontSpokes" stroke="#879c88" stroke-width="1.5"><path d="M-72 0H72M0-72V72M-51-51 51 51M-51 51 51-51M-66-28 66 28M-28-66 28 66M-66 28 66-28M-28 66 28-66"/><rect x="-3" y="-57" width="6" height="16" rx="3" fill="#e6b578" stroke="#fae9c3" stroke-width="1.5"/></g><circle r="8" fill="#d3cbb0" stroke="#758573" stroke-width="2"/></g>
+  <path id="farLeg" d="M782 489 858 543 804 610" fill="none" stroke="#c6a069" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path id="farCrank" d="M831 626 801 626" fill="none" stroke="#83917f" stroke-width="7" stroke-linecap="round"/><g id="farFoot" transform="translate(801 620)"><use href="#foot" style="filter:brightness(.95)"/></g>
+  <path d="M642 597a83 83 0 0 1 134-35M946 589a83 83 0 0 1 148 0" fill="none" stroke="#d59d87" stroke-width="5" stroke-linecap="round"/>
+  <path d="M655 541h101m-89 0 49 85m27-84-27 84" fill="none" stroke="#879780" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M716 611 829 601a26 26 0 1 1 0 51l-113-11a15 15 0 0 1 0-30Z" fill="none" stroke="#8a967e" stroke-width="3"/>
+  <path id="chain" d="M716 611 829 601a26 26 0 1 1 0 51l-113-11a15 15 0 0 1 0-30Z" fill="none" stroke="#c7c9ad" stroke-width="1.6" stroke-dasharray="2 4"/>
+  <path d="m716 626 65-111 50 111H716m65-111 174 3-124 108m112-136 26 78 50 58m-238-111-8-31" fill="none" stroke="#927f6c" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m716 626 65-111 50 111H716m65-111 174 3-124 108m112-136 26 78 50 58m-238-111-8-31" fill="none" stroke="#d6a08a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m727 610 53-89m15-6 141 3m-99 96 107-90m28 58 37 45" fill="none" stroke="#f3c8a6" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="m800 515 17 1m116 2h14" stroke="#f7e8c6" stroke-width="7"/>
+  <path d="m775 491-3-21" stroke="#899782" stroke-width="7"/>
+  <path d="M746 476q16-13 42-6l18 2q13 4 1 10l-43 5q-23-1-18-11Z" fill="#7f8e78"/><path d="M754 475q24-5 44 1" fill="none" stroke="#acb49a" stroke-width="2" stroke-linecap="round"/>
+  <path d="m944 490-10-31q-3-10 9-13l31-8q15-3 21 7t-9 14" fill="none" stroke="#778774" stroke-width="8" stroke-linecap="round"/><path d="m943 486-8-26q-2-10 12-12l29-8" fill="none" stroke="#d0d1b2" stroke-width="3" stroke-linecap="round"/><path d="m981 439q17 7 6 20" fill="none" stroke="#b69672" stroke-width="9" stroke-linecap="round"/>
+  <path d="M978 459q-3 46-15 63" fill="none" stroke="#889a80" stroke-width="1.7"/>
+  <g id="bellRig" class="interactive" data-action="bell" tabindex="0" role="button" aria-label="轻轻摇响车铃"><path d="M960 442v-13" stroke="#8b967b" stroke-width="2.5"/><path d="M950 430a10 10 0 0 1 20 0Z" fill="#dec388" stroke="#aa9c70" stroke-width="1.5"/><circle cx="960" cy="419" r="2.2" fill="#a8996c"/><circle cx="960" cy="428" r="23" fill="transparent"/></g>
+  <g id="basket"><path d="m1005 463 54 2-8 48h-39Z" fill="#dbc49b" stroke="#b3a381" stroke-width="2" stroke-linejoin="round"/><path d="m1011 473 42 1m-40 11h38m-36 10h35m-28-25 3 37m9-37-1 37m12-36-4 37" stroke="#f4e2b9" stroke-width="2"/><path d="M1030 467q-5-14-1-28m1 20q12-16 20-11" fill="none" stroke="#839a72" stroke-width="2.7" stroke-linecap="round"/><path d="M1030 457q-17 1-14-10 13-2 14 10m5-4q15 4 16-7-12-5-16 7" fill="#a0b38b"/><g transform="translate(1029 438)"><g fill="#fff5d7"><ellipse cy="-7" rx="4.5" ry="7"/><ellipse cy="-7" rx="4.5" ry="7" transform="rotate(72)"/><ellipse cy="-7" rx="4.5" ry="7" transform="rotate(144)"/><ellipse cy="-7" rx="4.5" ry="7" transform="rotate(216)"/><ellipse cy="-7" rx="4.5" ry="7" transform="rotate(288)"/></g><circle r="4.5" fill="#dcbc77"/></g></g>
+  <circle cx="831" cy="626" r="27" fill="#e9dec0" stroke="#93a084" stroke-width="2"/><g id="chainRing" transform="translate(831 626)" stroke="#9fa88b" stroke-width="5"><path d="M0-18V18M-18 0H18"/></g>
+  <g id="riderBody" class="interactive companion-hit" role="button" tabindex="0" data-action="pet" aria-label="摸摸鹈鹕团团；按 Enter 也可以"><g display="none" aria-hidden="true">
+    <g id="tail"><path d="M711 404q-30-18-62-14 10 24 44 31-38-5-46 5 19 23 62 13Z" fill="var(--feather-shade)" stroke="var(--outline)" stroke-width="2.2" stroke-linejoin="round"/><path d="M669 407q15 11 37 14" stroke="#c1cdb6" stroke-width="2" fill="none"/></g>
+    <path d="M854 361C824 337 774 326 732 346 695 363 674 396 680 432 684 473 715 498 758 505 807 514 852 497 872 463 890 434 884 394 854 361Z" fill="var(--feather)" stroke="var(--outline)" stroke-width="2.5"/>
+    <path d="M697 447q28 43 79 44 60 4 87-39-12 45-64 49-72 9-102-54Z" fill="var(--feather-shade)" opacity=".66"/>
+    <!-- The entire head and neck form one continuous silhouette in a single rig.
+         No duplicate head-shaped neck contour and no independently drifting outline. -->
+    <g id="head">
+      <path d="M817 412 C842 401 850 379 844 357 C841 342 833 324 831 305 C822 286 827 255 844 240 C864 218 901 218 922 235 C943 252 952 284 938 310 C930 325 917 333 901 338 C883 348 887 380 896 405 C906 431 899 455 878 473 C864 483 853 485 840 484" fill="var(--feather)" stroke="var(--outline)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M850 331 C847 350 856 367 862 384 Q872 407 854 425 C886 413 884 392 873 373 Q863 350 877 334Z" fill="var(--feather-shade)" opacity=".5"/>
+      <path d="M850 236q-9-12-5-21 8 3 13 13-1-16 6-19 7 6 6 17 6-13 14-12 2 7-5 15" fill="var(--feather)" stroke="var(--outline)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M850 284q-7 9-4 21m6-9-1 8" fill="none" stroke="#e4e6cd" stroke-width="3" stroke-linecap="round"/>
+      <g id="jaw"><path d="M928 301 1070 319q-18 32-61 47-38 11-61-12-16-16-20-53Z" fill="url(#pouch)" stroke="#b69b6d" stroke-width="2.3" stroke-linejoin="round"/><path d="M941 320q13 32 39 36 34 7 63-24" fill="none" stroke="#f9e1b4" stroke-width="3" stroke-linecap="round"/><path d="M964 330q12 18 31 18" fill="none" stroke="#d6aa79" stroke-width="1.5" stroke-linecap="round"/></g>
+      <path d="M925 280q68-3 146 30 15 7 8 12-22 6-79-3l-72-14Z" fill="url(#bill)" stroke="#b29a68" stroke-width="2.3" stroke-linejoin="round"/><path d="M937 286q64 2 125 26" fill="none" stroke="#fae3b0" stroke-width="3.7" stroke-linecap="round"/><path d="m948 289 7 1" stroke="#c39e64" stroke-width="2.4" stroke-linecap="round"/><path d="M928 304q38 8 80 13t69 4" stroke="#c1a06b" stroke-width="1.3" fill="none"/>
+      <g id="eyeOpen" transform="translate(895 279)"><ellipse rx="8.5" ry="10.5" fill="#535f4f"/><circle cx="2.7" cy="-3.7" r="3" fill="#fffdf4"/><circle cx="-2.8" cy="3.8" r="1.3" fill="#aab899"/></g>
+      <path id="eyeHappy" d="M886 283q9-11 18 0" fill="none" stroke="#667057" stroke-width="3.2" stroke-linecap="round" opacity="0"/>
+      <path d="M884 258q8-5 15-1" fill="none" stroke="#99a38a" stroke-width="2" stroke-linecap="round"/>
+      <ellipse id="blush" cx="880" cy="307" rx="17" ry="9" fill="#e9b6a4" opacity=".55"/>
+      <path d="m873 306-1 3m7-3-1 3m7-3-1 3" stroke="#dca78f" stroke-width="1.2" stroke-linecap="round" opacity=".65"/>
+    </g>
+    <g id="scarfTail"><path d="M860 351c-30 6-43-21-77-15l10 11-17 13c33-10 49 16 87 7Z" fill="var(--scarf)" stroke="#758c72" stroke-width="2" stroke-linejoin="round"/><path d="M848 359q-31-1-45-14" fill="none" stroke="#c9d5ad" stroke-width="3"/><path d="m794 336 4 12m5-12 4 12" stroke="#dbe0bb" stroke-width="2"/></g>
+    <path d="M852 343q19 10 41 2l5 15q-24 9-44-3Z" fill="var(--scarf)" stroke="#758c72" stroke-width="1.8"/><path d="M857 349q18 8 37 2" fill="none" stroke="#d9dfb8" stroke-width="2"/><path d="M853 347q-10 3-7 11 6 10 15 2l-1-9Z" fill="#8caa8d" stroke="#758c72" stroke-width="1.8"/>
+    <g id="wing"><path d="M723 390c17-19 47-15 71 7 33 30 60 36 101 40l65 9q10 2 8 9-2 7-15 5l-63-5q-46 1-83-18-21 23-49 21-33-1-43-23-13-24 8-45Z" fill="var(--feather-shade)" stroke="var(--outline)" stroke-width="2.3" stroke-linejoin="round"/><path d="M730 410q21-10 43 9 45 33 117 29l62 5M729 426q17-5 37 11m-29 5q13 1 20 5" fill="none" stroke="#bdcdb1" stroke-width="2.5" stroke-linecap="round"/></g>
+    <path d="M706 388q-6 4-9 11m12-3-3 6" stroke="#e6e9d2" stroke-width="3" stroke-linecap="round"/>
+    <ellipse class="pet-highlight" cx="884" cy="279" rx="72" ry="70" fill="none" stroke="#fff9d7" stroke-width="5" stroke-dasharray="2 10"/>
+  </g><rect class="companion-touch-target" x="645" y="164" width="332" height="346" rx="40" fill="transparent" pointer-events="all"/><g class="companion-motion" data-rig="0">
+      <svg class="companion-art" x="645" y="164" width="332" height="346" viewBox="8 115 350 365" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <defs><clipPath id="companionClip"><polygon points="8,115 346,115 346,237 358,264 358,326 332,359 332,500 8,500"/></clipPath>
+          <linearGradient id="headFade" gradientUnits="userSpaceOnUse" x1="0" y1="340" x2="0" y2="358"><stop stop-color="white"/><stop offset="1" stop-color="black"/></linearGradient>
+          <linearGradient id="bodyFade" gradientUnits="userSpaceOnUse" x1="0" y1="320" x2="0" y2="334"><stop stop-color="black"/><stop offset="1" stop-color="white"/></linearGradient>
+          <mask id="bodyMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1568" height="1003"><rect width="1568" height="1003" fill="url(#bodyFade)"/></mask>
+          <mask id="headMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1568" height="1003"><rect width="1568" height="1003" fill="url(#headFade)"/></mask>
+          <filter id="faceSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+          <mask id="faceMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1568" height="1003"><ellipse cx="182" cy="214" rx="30" ry="26" fill="white" filter="url(#faceSoft)"/></mask>
+        </defs>
+        
+        <g mask="url(#bodyMask)"><image href="assets/animal-atlas.png" width="1568" height="1003" clip-path="url(#companionClip)"/></g>
+        <g class="companion-head" data-pivot-x="182" data-pivot-y="332" data-face-x="182" data-face-y="214">
+          <g mask="url(#headMask)"><image href="assets/animal-atlas.png" width="1568" height="1003" clip-path="url(#companionClip)"/></g>
+          <image class="companion-expression" href="assets/contented-faces.webp" width="1568" height="1003" mask="url(#faceMask)" opacity="0"/>
+        </g>
+      </svg>
+    </g><path d="M725 405Q727 369 765 388Q853 420 958 432Q972 435 963 444Q845 449 765 435Q724 431 725 405Z" fill="#eee6cd" stroke="#c9ba97" stroke-width="1.5"/></g>
+  <path id="nearLeg" d="M801 494 875 555 850 610" fill="none" stroke="#b99665" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <path id="nearLegInner" d="M801 494 875 555 850 610" fill="none" stroke="#edbc75" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path id="nearCrank" d="M831 626 861 626" fill="none" stroke="#85947c" stroke-width="7" stroke-linecap="round"/>
+  <g id="nearFoot" transform="translate(861 620)"><use href="#foot"/></g>
+  <path display="none" id="hipFluff" d="M786 489q11 4 22 0l5 13-7 6-5-3-6 4-7-7Z" fill="var(--feather)" stroke="var(--outline)" stroke-width="1.6" stroke-linejoin="round"/>
+  <circle cx="831" cy="626" r="6" fill="#cbd0b0" stroke="#8d9d80" stroke-width="2"/>
+</g>
+<g id="foreground"><use href="#grassUnit"/><use href="#grassUnit" x="1440"/></g>
+<g id="rainLayer" class="rain-only" pointer-events="none"></g>
+<g id="effects" pointer-events="none"></g>
+<g id="bubblesLayer"></g>
+</svg>
+<div class="hero-copy"><div class="eyebrow">A LITTLE PAUSE BY THE SEA</div><h1>今天，<br>只管慢慢来。</h1><p>没有目的地，也没关系。<br>陪团团沿着海岸，骑一小会儿。</p><svg class="little-path" viewBox="0 0 120 23" aria-hidden="true"><path d="M3 17q17-27 38-9t41-2 33 5" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 5" fill="none" stroke-linecap="round"/><circle cx="115" cy="12" r="2.5" fill="none" stroke="currentColor"/></svg></div>
+<div class="weather-picker" role="group" aria-label="场景和声音预设"><button type="button" data-weather="sea" aria-pressed="true" title="晴海：轻浪和海风"><svg class="icon"><use href="#i-sun"/></svg><span>晴海</span></button><button type="button" data-weather="rain" aria-pressed="false" title="小雨：细雨落在海岸"><svg class="icon"><use href="#i-rain"/></svg><span>小雨</span></button><button type="button" data-weather="night" aria-pressed="false" title="月夜：温柔海浪与暖噪音"><svg class="icon"><use href="#i-moon"/></svg><span>月夜</span></button></div>
+<div id="birdBubble" class="bird-bubble" aria-hidden="true">你好呀，我是团团。</div>
+<div class="breathe-guide" aria-hidden="true"><div class="breath-orbit"><div id="breathCore" class="breath-core"></div></div><div class="breath-copy"><strong id="breathText">轻轻吸气</strong><span>按舒服的节奏就好</span></div></div>
+<div class="scene-hint"><span class="dot"></span><span id="sceneHintText">摸摸团团 · 点点海面 · 拖一朵云</span></div>
+<div class="scene-status"><div class="equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span id="soundStatus">海风静音中</span></div>
+</div>
+<div class="control-deck">
+  <div class="deck-section"><div class="section-heading"><span>一点小互动</span><small>LITTLE JOYS</small></div><div class="play-actions">
+    <button class="action" id="petButton" type="button" title="摸摸团团；也可以直接摸它的头 · P"><span class="tile"><svg class="icon"><use href="#i-pet"/></svg></span><span>摸摸头</span></button>
+    <button class="action" id="feedButton" type="button" title="点一下喂鱼，或把小鱼拖到团团的嘴边 · F"><span class="tile"><svg class="icon"><use href="#i-fish"/></svg></span><span>喂条小鱼</span></button>
+    <button class="action" id="bubbleButton" type="button" title="吹出泡泡，再点破它们；长按可连续吹 · B"><span class="tile"><svg class="icon"><use href="#i-bubble"/></svg></span><span>吹泡泡</span></button>
+    <button class="action" id="bellButton" type="button" title="一声很轻的车铃；需先打开声音 · L"><span class="tile"><svg class="icon"><use href="#i-bell"/></svg></span><span>叮铃一下</span></button>
+  </div><p class="action-note">小鱼可以拖到嘴边。泡泡，可以一个个戳破。</p></div>
+  <div class="deck-section"><div class="section-heading"><span>调一杯环境声</span><small id="mixState">本地合成 · 声音未开启</small></div><div class="mixer">
+    <div class="mix-channel"><label for="oceanLevel"><span><svg class="icon"><use href="#i-wave"/></svg>海浪</span><output id="oceanValue" for="oceanLevel">68</output></label><input id="oceanLevel" data-channel="ocean" type="range" min="0" max="100" value="68" aria-label="海浪音量"></div>
+    <div class="mix-channel"><label for="windLevel"><span><svg class="icon"><use href="#i-wind"/></svg>海风</span><output id="windValue" for="windLevel">26</output></label><input id="windLevel" data-channel="wind" type="range" min="0" max="100" value="26" aria-label="海风音量"></div>
+    <div class="mix-channel"><label for="rainLevel"><span><svg class="icon"><use href="#i-rain"/></svg>细雨</span><output id="rainValue" for="rainLevel">0</output></label><input id="rainLevel" data-channel="rain" type="range" min="0" max="100" value="0" aria-label="细雨音量"></div>
+    <div class="mix-channel"><label for="warmLevel"><span><svg class="icon"><use href="#i-noise"/></svg>暖噪</span><output id="warmValue" for="warmLevel">12</output></label><input id="warmLevel" data-channel="warm" type="range" min="0" max="100" value="12" aria-label="柔和棕噪音量"></div>
+  </div></div>
+  <div class="deck-section"><div class="section-heading"><label for="speed">慢一点，也很好</label><small>NO RUSH</small></div><div class="pace-row"><button id="pauseButton" class="tiny-button" type="button" aria-pressed="false" title="暂停骑行，不会暂停声音 · 空格" aria-label="暂停骑行"><svg class="icon"><use id="pauseIcon" href="#i-pause"/></svg></button><input id="speed" type="range" min="0.25" max="1.5" step="0.05" value="0.65" aria-label="骑行速度"><output id="speedValue" for="speed">0.65×</output></div><div class="gentle-buttons"><button id="breathButton" type="button" class="mini" aria-pressed="false" title="跟随圆圈轻轻呼吸，不需要屏息"><svg class="icon"><use href="#i-breath"/></svg><span>一起呼吸</span></button><label class="mini timer-wrap" title="到时声音在最后 20 秒渐弱，骑行也会暂停"><svg class="icon"><use href="#i-clock"/></svg><span class="sr-only">休息定时</span><select id="sleepTimer" aria-label="休息定时"><option value="0">不限时</option><option value="15">15 分钟</option><option value="30">30 分钟</option><option value="60">60 分钟</option></select></label></div><div id="timerCount" class="timer-count">暂停画面，也可以只听海。</div></div>
+</div>
+</section>
+<footer class="footer"><span>不用完成什么，待一会儿就好。</span><span class="fine-print">纯 SVG · 本地合成环境声 · 无联网请求</span><span class="footer-shortcuts"><kbd>M</kbd>声音 <span style="padding:0 6px;opacity:.5">·</span><kbd>SPACE</kbd>停一会儿</span></footer>
+</main>
+<button id="exitImmersive" class="pill immerse-exit" type="button"><svg class="icon"><use href="#i-back"/></svg>回到岸上 <span style="opacity:.5;font-size:9px">ESC</span></button>
+<div id="fishGhost" class="fish-ghost" aria-hidden="true"><svg class="icon"><use href="#i-fish"/></svg></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div><p id="liveStatus" class="sr-only" role="status" aria-live="polite"></p>
+<noscript><div class="no-script">打开浏览器的 JavaScript，即可和团团互动、聆听海风。画面本身不需要网络。</div></noscript>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const svg = $('sceneSvg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const TAU = Math.PI * 2;
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const number = (v, fallback, lo, hi) => Number.isFinite(Number(v)) ? clamp(Number(v), lo, hi) : fallback;
+  const fmt = n => n.toFixed(2);
+  const trans = (node, value) => node.setAttribute('transform', value);
+  const path = (node, value) => node.setAttribute('d', value);
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = array => array[Math.floor(Math.random() * array.length)];
+  const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+  const mobileQuery = matchMedia('(max-width: 620px)');
+  const presets = {
+    sea: { ocean:68, wind:26, rain:0, warm:12 },
+    rain: { ocean:28, wind:18, rain:62, warm:10 },
+    night: { ocean:48, wind:12, rain:0, warm:32 }
+  };
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('beak-breeze-v2') || '{}') || {}; } catch (_) { /* Local-file storage may be unavailable. */ }
+  const initialWeather = Object.hasOwnProperty.call(presets, saved.weather) ? saved.weather : 'sea';
+  const state = {
+    weather: initialWeather,
+    levels: Object.fromEntries(Object.keys(presets.sea).map(key => [key, number(saved.levels?.[key], presets[initialWeather][key], 0, 100)])),
+    speed: number(saved.speed, .65, .25, 1.5), volume: number(saved.volume, 32, 0, 100),
+    running: !motionQuery.matches, reduced: motionQuery.matches, sound: false, soundBusy: false,
+    immersive: false, breathing: false, breathStart: 0,
+    uiT: 0, rideT: 0, worldT: 0, lastFrame: null,
+    petUntil: -10, feedStart: -10, fedUntil: -10, bellStart: -10, boatStart: -10,
+    pointer: {x:895,y:279,inside:false}, gazeX:0, gazeY:0,
+    petting:false, petPoint:null, lastPet:-10, lastBell:-10,
+    deadline:0, cloudDrag:null, feedDrag:null, muteHintShown:false
+  };
+  let saveHandle, bubbleTextHandle, toastHandle, timerHandle;
+  function savePrefs() {
+    clearTimeout(saveHandle);
+    saveHandle = setTimeout(() => {
+      try { localStorage.setItem('beak-breeze-v2', JSON.stringify({weather:state.weather,levels:state.levels,speed:state.speed,volume:state.volume})); } catch (_) {}
+    }, 250);
+  }
+  function say(text, duration=3500) {
+    $('birdBubble').textContent = text;
+    $('birdBubble').classList.add('visible');
+    clearTimeout(bubbleTextHandle);
+    bubbleTextHandle = setTimeout(() => $('birdBubble').classList.remove('visible'), duration);
+    $('liveStatus').textContent = text;
+  }
+  function toast(text, duration=3300) {
+    $('toast').textContent = text;
+    $('toast').classList.add('show');
+    clearTimeout(toastHandle);
+    toastHandle = setTimeout(() => $('toast').classList.remove('show'), duration);
+  }
+  function node(tag, attrs={}, parent=null) {
+    const element = document.createElementNS(NS, tag);
+    for (const [key,value] of Object.entries(attrs)) element.setAttribute(key, String(value));
+    if (parent) parent.appendChild(element);
+    return element;
+  }
+  function point(event) {
+    const matrix = svg.getScreenCTM();
+    if (!matrix) return {x:0,y:0};
+    const p = svg.createSVGPoint();
+    p.x = event.clientX; p.y = event.clientY;
+    try { return p.matrixTransform(matrix.inverse()); } catch (_) { return {x:0,y:0}; }
+  }
+  function rangeFill(input) {
+    const fraction = (Number(input.value)-Number(input.min))/(Number(input.max)-Number(input.min));
+    input.style.setProperty('--fill', `${clamp(fraction,0,1)*100}%`);
+  }
+  function fitScene() {
+    const compact = !mobileQuery.matches && innerWidth > 850 && innerHeight <= 850;
+    svg.setAttribute('viewBox', mobileQuery.matches ? '530 -30 650 840' : compact ? '0 60 1440 680' : '0 0 1440 800');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    $('celestial').setAttribute('transform', mobileQuery.matches ? 'translate(-85 25)' : 'translate(0 0)');
+  }
+  fitScene();
+  window.addEventListener('resize', fitScene, {passive:true});
+  if (mobileQuery.addEventListener) mobileQuery.addEventListener('change', fitScene);
+  else mobileQuery.addListener(fitScene);
+
+  // Audio is entirely synthesized locally, and only initialized by an explicit gesture.
+  // Separate mixer/master/sleep gains allow independent, click-free fades.
+  class Soundscape {
+    constructor() { this.ctx=null; this.channels={}; this.suspendHandle=null; }
+    makeBuffer(kind, seconds) {
+      const sampleRate = 22050;
+      const length = Math.floor(sampleRate*seconds);
+      const seam = Math.floor(sampleRate*.22);
+      const buffer = this.ctx.createBuffer(2,length,sampleRate);
+      for (let channel=0;channel<2;channel++) {
+        const raw = new Float32Array(length+seam);
+        let b0=0,b1=0,b2=0,brown=0;
+        for (let i=0;i<raw.length;i++) {
+          const white = Math.random()*2-1;
+          if (kind==='brown') {
+            brown=(brown+.02*white)/1.02; raw[i]=brown*3.5;
+          } else if (kind==='pink') {
+            b0=.99765*b0+white*.099046;
+            b1=.963*b1+white*.2965164;
+            b2=.57*b2+white*1.0526913;
+            raw[i]=(b0+b1+b2+white*.1848)*.12;
+          } else raw[i]=white;
+        }
+        const data = buffer.getChannelData(channel);
+        let square=0;
+        for (let i=0;i<length;i++) {
+          // Continue the last samples across the loop boundary, then crossfade
+          // into the start. No abrupt buffer join and no silent gaps.
+          const w = i<seam ? .5-.5*Math.cos(Math.PI*i/seam) : 1;
+          const value = i<seam ? raw[length+i]*(1-w)+raw[i]*w : raw[i];
+          data[i]=value; square+=value*value;
+        }
+        const gain=.22/Math.max(.001,Math.sqrt(square/length));
+        for (let i=0;i<length;i++) data[i]*=gain;
+      }
+      return buffer;
+    }
+    filter(type, frequency, Q=.45) {
+      const f=this.ctx.createBiquadFilter(); f.type=type; f.frequency.value=frequency; f.Q.value=Q; return f;
+    }
+    lfo(parameter, frequency, depth) {
+      const oscillator=this.ctx.createOscillator(), gain=this.ctx.createGain();
+      oscillator.type='sine'; oscillator.frequency.value=frequency; gain.gain.value=depth;
+      oscillator.connect(gain); gain.connect(parameter); oscillator.start();
+    }
+    init() {
+      if (this.ctx) return;
+      const AudioCtx=window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) throw new Error('audio-unavailable');
+      this.ctx=new AudioCtx();
+      this.master=this.ctx.createGain(); this.master.gain.value=0;
+      this.sleep=this.ctx.createGain(); this.sleep.gain.value=1;
+      const compressor=this.ctx.createDynamicsCompressor();
+      compressor.threshold.value=-15; compressor.knee.value=18; compressor.ratio.value=6;
+      compressor.attack.value=.03; compressor.release.value=.45;
+      this.master.connect(this.sleep); this.sleep.connect(compressor); compressor.connect(this.ctx.destination);
+      const specs = {
+        ocean:{kind:'pink',seconds:17,hp:75,lp:1750,base:.76,swell:.23,frequency:.086},
+        wind:{kind:'brown',seconds:19,hp:145,lp:1350,base:.64,swell:.17,frequency:.051},
+        rain:{kind:'white',seconds:13,hp:520,lp:4600,base:.8,swell:.055,frequency:.036},
+        warm:{kind:'brown',seconds:23,hp:38,lp:620,base:1,swell:0,frequency:0}
+      };
+      for (const [key,spec] of Object.entries(specs)) {
+        const source=this.ctx.createBufferSource(); source.buffer=this.makeBuffer(spec.kind,spec.seconds); source.loop=true;
+        const high=this.filter('highpass',spec.hp), low=this.filter('lowpass',spec.lp);
+        const swell=this.ctx.createGain(), mix=this.ctx.createGain();
+        swell.gain.value=spec.base; mix.gain.value=0;
+        source.connect(high); high.connect(low); low.connect(swell); swell.connect(mix); mix.connect(this.master);
+        if (spec.swell) this.lfo(swell.gain,spec.frequency,spec.swell);
+        if (key==='ocean') this.lfo(swell.gain,.037,.10);
+        this.channels[key]=mix; source.start(0,rand(0,spec.seconds));
+      }
+      this.setMix();
+    }
+    target(param, value, timeConstant=.5) {
+      const t=this.ctx.currentTime;
+      if (typeof param.cancelAndHoldAtTime==='function') param.cancelAndHoldAtTime(t);
+      else { const current=param.value; param.cancelScheduledValues(t); param.setValueAtTime(current,t); }
+      param.setTargetAtTime(value,t,timeConstant);
+    }
+    async start() {
+      this.init(); clearTimeout(this.suspendHandle);
+      await this.ctx.resume();
+      if (this.ctx.state!=='running') throw new Error('audio-blocked');
+      this.setMix(); this.setSleep(state.deadline);
+    }
+    setVolume() {
+      if (!this.ctx) return;
+      const volume=state.sound ? .75*Math.pow(state.volume/100,1.2) : 0;
+      this.target(this.master.gain,volume,state.sound ? .55 : .18);
+    }
+    mute() {
+      this.setVolume(); clearTimeout(this.suspendHandle);
+      if (this.ctx) this.suspendHandle=setTimeout(() => {
+        if (!state.sound && this.ctx.state==='running') this.ctx.suspend().catch(()=>{});
+      }, 1350);
+    }
+    setMix() {
+      if (!this.ctx) return;
+      const bases={ocean:.83,wind:.6,rain:.54,warm:.58};
+      for (const [key,gain] of Object.entries(this.channels)) this.target(gain.gain,Math.pow(state.levels[key]/100,1.35)*bases[key],.7);
+    }
+    setSleep(deadline) {
+      if (!this.ctx) return;
+      const g=this.sleep.gain,t=this.ctx.currentTime;
+      if (typeof g.cancelAndHoldAtTime==='function') g.cancelAndHoldAtTime(t);
+      else { const current=g.value; g.cancelScheduledValues(t); g.setValueAtTime(current,t); }
+      if (!deadline) { g.setTargetAtTime(1,t,.5); return; }
+      const remaining=(deadline-Date.now())/1000;
+      if (remaining<=0) { g.linearRampToValueAtTime(0,t+.2); return; }
+      if (remaining>.6) {
+        g.linearRampToValueAtTime(1,t+.5);
+        g.setValueAtTime(1,t+Math.max(.5,remaining-20));
+      }
+      g.linearRampToValueAtTime(0,t+remaining);
+    }
+    tone(frequency,endFrequency,duration,level,delay=0) {
+      if (!state.sound || !this.ctx || this.ctx.state!=='running' || state.volume===0) return;
+      const t=this.ctx.currentTime+delay;
+      const osc=this.ctx.createOscillator(),gain=this.ctx.createGain();
+      osc.type='sine'; osc.frequency.setValueAtTime(frequency,t);
+      if (endFrequency) osc.frequency.exponentialRampToValueAtTime(endFrequency,t+duration);
+      gain.gain.setValueAtTime(0,t); gain.gain.linearRampToValueAtTime(level,t+.025);
+      gain.gain.exponentialRampToValueAtTime(.0001,t+duration); gain.gain.linearRampToValueAtTime(0,t+duration+.06);
+      osc.connect(gain); gain.connect(this.master);
+      osc.start(t); osc.stop(t+duration+.08);
+      osc.onended=()=>{osc.disconnect();gain.disconnect();};
+    }
+    bell() { this.tone(780,null,1.8,.085); this.tone(1246,null,1.15,.028,.045); this.tone(1732,null,.8,.011,.02); }
+    pop() { this.tone(rand(390,570),230,.16,.036); }
+    drop() { this.tone(540,230,.28,.026); }
+  }
+  const audio=new Soundscape();
+  function updateAudioUI() {
+    document.body.classList.toggle('sound-on',state.sound);
+    $('soundToggle').setAttribute('aria-pressed',String(state.sound));
+    $('soundToggle').setAttribute('aria-label',state.sound?'关闭所有声音':'打开环境声');
+    $('soundIcon').setAttribute('href',state.sound?'#i-volume':'#i-muted');
+    $('soundText').textContent=state.sound?'声音已开启':'打开声音';
+    const total=Object.values(state.levels).reduce((a,b)=>a+b,0);
+    $('soundStatus').textContent=state.sound
+      ? (state.volume===0 || total===0 ? '音量正安静地归零' : ({sea:'海风和你，都慢慢来',rain:'细雨落下，不必赶路',night:'晚安，今天辛苦了'}[state.weather]))
+      : '海风静音中';
+    $('mixState').textContent=state.sound?'本地合成 · 自己喜欢就好':'本地合成 · 声音未开启';
+    document.querySelectorAll('.equalizer').forEach(e=>e.style.opacity=state.sound && state.volume>0 && total>0 ? '1' : '.45');
+  }
+  async function toggleSound() {
+    if (state.soundBusy) return;
+    if (state.sound) { state.sound=false; audio.mute(); updateAudioUI(); return; }
+    state.soundBusy=true; $('soundToggle').setAttribute('aria-busy','true');
+    try {
+      await audio.start(); state.sound=true; audio.setVolume(); updateAudioUI();
+    } catch (_) {
+      state.sound=false; updateAudioUI();
+      toast('这个预览暂时没有放出声音。请用 Safari、Chrome 或 Edge 直接打开 HTML，再点一次「打开声音」。',6000);
+    } finally { state.soundBusy=false; $('soundToggle').removeAttribute('aria-busy'); }
+  }
+  $('soundToggle').addEventListener('click',toggleSound);
+  $('volume').value=state.volume;
+  $('volumeValue').textContent=Math.round(state.volume)+'%';
+  $('volume').addEventListener('input',event=>{
+    state.volume=Number(event.target.value); rangeFill(event.target);
+    $('volumeValue').textContent=state.volume+'%'; audio.setVolume(); updateAudioUI(); savePrefs();
+  });
+  function updateMixer() {
+    for (const key of Object.keys(state.levels)) {
+      const input=$(key+'Level'); input.value=state.levels[key]; rangeFill(input);
+      $(key+'Value').textContent=Math.round(state.levels[key]);
+      input.setAttribute('aria-valuetext',`${Math.round(state.levels[key])}%`);
+    }
+  }
+  for (const input of document.querySelectorAll('[data-channel]')) input.addEventListener('input',()=>{
+    state.levels[input.dataset.channel]=Number(input.value); updateMixer(); audio.setMix(); updateAudioUI(); savePrefs();
+  });
+  function setWeather(weather,resetMix=true,announce=true) {
+    if (!Object.hasOwnProperty.call(presets,weather)) return;
+    state.weather=weather; document.body.dataset.weather=weather;
+    document.querySelector('meta[name="theme-color"]').setAttribute('content',weather==='night'?'#222c38':'#f4f2e9');
+    for (const button of document.querySelectorAll('button[data-weather]')) button.setAttribute('aria-pressed',String(button.dataset.weather===weather));
+    if (resetMix) { state.levels={...presets[weather]}; updateMixer(); audio.setMix(); }
+    updateAudioUI();
+    if (announce) say({sea:'天气正好。我们就这样慢慢骑。',rain:'下雨也没关系，有我陪着你。',night:'月亮来接班了。今天辛苦啦。'}[weather]);
+    savePrefs();
+  }
+  for (const button of document.querySelectorAll('button[data-weather]')) button.addEventListener('click',()=>setWeather(button.dataset.weather));
+  function cycleWeather() { const keys=Object.keys(presets); setWeather(keys[(keys.indexOf(state.weather)+1)%keys.length]); }
+
+  // All one-shot reactions use their own clock: petting still works while resting.
+  const tweens=[];
+  function tween(duration,update,finish=()=>{},element=null) {
+    if (tweens.length>=80) { const old=tweens.shift(); if (old.element) old.element.remove(); }
+    tweens.push({start:state.uiT,duration,update,finish,element});
+  }
+  function advanceTweens() {
+    for (let i=tweens.length-1;i>=0;i--) {
+      const a=tweens[i],p=clamp((state.uiT-a.start)/a.duration,0,1);
+      a.update(p);
+      if (p>=1) { tweens.splice(i,1); if(a.element) a.element.remove(); a.finish(); }
+    }
+  }
+  function heart(x=881,y=248,scale=1) {
+    if (state.reduced) return;
+    const h=node('use',{href:'#littleHeart'},$('effects'));
+    const drift=rand(-19,19),duration=rand(1.5,2.3);
+    tween(duration,p=>{
+      trans(h,`translate(${fmt(x+drift*p)} ${fmt(y-49*p)}) scale(${fmt(scale*(.65+.2*Math.sin(p*Math.PI)))})`);
+      h.setAttribute('opacity',fmt(Math.sin(Math.PI*p)*.9));
+    },()=>{},h);
+  }
+  function sparkle(x,y,color='#f7f0cb') {
+    if (state.reduced) return;
+    const g=node('g',{stroke:color,'stroke-width':2,'stroke-linecap':'round'},$('effects'));
+    node('path',{d:'M-5 0H5M0-5V5'},g);
+    tween(.95,p=>{trans(g,`translate(${fmt(x)} ${fmt(y-p*15)}) scale(${fmt(Math.sin(p*Math.PI))})`);g.setAttribute('opacity',fmt(1-p));},()=>{},g);
+  }
+  function pet(position=null,announce=true) {
+    state.petUntil=state.uiT+2.5;
+    if (state.uiT-state.lastPet<.3) return;
+    state.lastPet=state.uiT;document.dispatchEvent(new Event('island:pet'));
+    const p=position||{x:884,y:246};
+    heart(p.x+rand(-12,12),p.y-12,.7); heart(p.x+24,p.y-23,.45);
+    if (announce) say(pick(['嗯——就是这里。','摸摸头，烦恼飘走。','你来了，海风都变软了。','今天也可以，什么都不完成。','团团喜欢和你待在一起。']));
+  }
+  function feed(startPoint=null) {
+    if(window.IslandCompanion){document.dispatchEvent(new Event('island:feed'));return;}
+    if (state.uiT-state.feedStart<1.8) return;
+    state.feedStart=state.uiT; state.fedUntil=state.uiT+3;
+    const start=startPoint||{x:680,y:638};
+    const fish=node('use',{href:'#littleFish'},$('effects'));
+    const duration=state.reduced ? .18 : 1.05;
+    tween(duration,p=>{
+      const q=1-p,end={x:969,y:321};
+      const control={x:(start.x+end.x)*.5+40,y:Math.min(start.y,end.y)-125};
+      const x=q*q*start.x+2*q*p*control.x+p*p*end.x;
+      const y=q*q*start.y+2*q*p*control.y+p*p*end.y;
+      trans(fish,`translate(${fmt(state.reduced?end.x:x)} ${fmt(state.reduced?end.y:y)}) rotate(${fmt(-20+24*p)}) scale(${fmt(.9-.6*Math.pow(p,3))})`);
+      fish.setAttribute('opacity',fmt(p>.83?(1-p)/.17:1));
+    },()=>{
+      state.petUntil=state.uiT+2.4;
+      heart(929,264,.9); heart(962,287,.58);
+      say(pick(['啊呜。谢谢你的小鱼！','小鱼收到，快乐分你一半。','吃饱啦，继续陪你兜风。','这条小鱼，有被认真喜欢。']));
+    },fish);
+  }
+  function ringBell() {
+    if (state.uiT-state.lastBell<.55) return;
+    state.lastBell=state.uiT; state.bellStart=state.uiT; audio.bell();
+    state.petUntil=Math.max(state.petUntil,state.uiT+1.4);
+    say(pick(['叮——烦恼请让一让。','叮铃。是好心情经过。','慢慢骑，也能听见小小的快乐。']),2700);
+    if (!state.reduced) {
+      const g=node('g',{fill:'none',stroke:'#d4b981','stroke-width':2.2,'stroke-linecap':'round'},$('effects'));
+      node('path',{d:'M946 409q-5 3-5 8M975 409q5 3 5 8M960 402v-6'},g);
+      tween(1,p=>{trans(g,`translate(0 ${fmt(-p*7)})`);g.setAttribute('opacity',fmt(1-p));},()=>{},g);
+    }
+    if (!state.sound && !state.muteHintShown) { state.muteHintShown=true; toast('点右上角「打开声音」，就能听见轻轻的车铃。'); }
+  }
+  function waveBoat() {
+    state.boatStart=state.uiT; sparkle(mobileQuery.matches ? 1104 : 1199,404);
+    say('小船也在，慢慢地晃。',2600);
+  }
+  let lastWater=-10;
+  function waterRipple(x,y) {
+    if (state.uiT-lastWater<.18) return;
+    lastWater=state.uiT; y=clamp(y,420,540); audio.drop();
+    const g=node('g',{fill:'none',stroke:'var(--wave)','stroke-width':1.7},$('waterEffects'));
+    const a=node('ellipse',{cx:x,cy:y,rx:5,ry:2},g),b=node('ellipse',{cx:x,cy:y,rx:2,ry:1},g);
+    tween(state.reduced ? .6 : 2.5,p=>{
+      const size=state.reduced?30:5+65*p;
+      a.setAttribute('rx',fmt(size)); a.setAttribute('ry',fmt(size*.18));
+      b.setAttribute('rx',fmt(size*.63)); b.setAttribute('ry',fmt(size*.11));
+      g.setAttribute('opacity',fmt((1-p)*.8));
+    },()=>{},g);
+    if (Math.random()<.42 && !state.reduced) {
+      const f=node('use',{href:'#littleFish'},$('waterEffects'));
+      tween(.95,p=>{
+        const height=Math.sin(Math.PI*p)*43;
+        trans(f,`translate(${fmt(x-20+48*p)} ${fmt(y-height)}) rotate(${fmt(-45+90*p)}) scale(.4)`);
+        f.setAttribute('opacity',fmt(Math.sin(Math.PI*p)));
+      },()=>{},f);
+    }
+  }
+  // Put the water hit area underneath the boat, so its controls remain reachable.
+  svg.insertBefore($('seaHit'),$('boat'));
+  $('seaHit').addEventListener('click',event=>{const p=point(event);waterRipple(p.x,p.y);});
+
+  const bubbles=[];
+  let bubbleID=0,lastPop=-10;
+  function spawnBubbles(count=5) {
+    count=Math.min(count,22-bubbles.length);
+    for (let i=0;i<count;i++) {
+      const x=rand(600,1115),y=rand(420,625),r=rand(14,29);
+      const g=node('g',{'class':'interactive','tabindex':0,'role':'button','aria-label':'戳破这颗泡泡'},$('bubblesLayer'));
+      node('circle',{r,fill:'url(#bubbleFill)',stroke:'#f7fbec','stroke-width':1.45,'stroke-opacity':.76},g);
+      node('path',{d:`M${fmt(-r*.59)} ${fmt(-r*.18)}Q${fmt(-r*.5)} ${fmt(-r*.62)}${fmt(-r*.03)} ${fmt(-r*.67)}`,stroke:'#fffff5','stroke-width':2.6,fill:'none','stroke-linecap':'round',opacity:.73},g);
+      node('circle',{cx:r*.4,cy:r*.49,r:r*.09,fill:'#fae5da',opacity:.7},g);
+      // A generous transparent hit target helps on touchscreens.
+      node('circle',{r:Math.max(r,24),fill:'transparent'},g);
+      const bubble={id:++bubbleID,g,x,y,r,baseX:x,start:state.uiT,phase:rand(0,TAU),vy:rand(19,32),vx:rand(-5,8)};
+      bubbles.push(bubble); trans(g,`translate(${fmt(x)} ${fmt(y)})`);
+      g.addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();popBubble(bubble.id);});
+      g.addEventListener('keydown',event=>{
+        if(event.key==='Enter'||event.key===' '){event.preventDefault();popBubble(bubble.id);$('bubbleButton').focus({preventScroll:true});}
+      });
+    }
+  }
+  function popBubble(id) {
+    const index=bubbles.findIndex(b=>b.id===id); if(index<0)return;
+    const b=bubbles[index];b.g.remove();bubbles.splice(index,1);
+    if (state.uiT-lastPop>.08){audio.pop();lastPop=state.uiT;}
+    if(state.reduced)return;
+    const group=node('g',{fill:'none',stroke:'#fffae6','stroke-width':1.6,'stroke-linecap':'round'},$('effects'));
+    const ring=node('circle',{cx:b.x,cy:b.y,r:b.r},group);
+    for(let i=0;i<5;i++){
+      const a=i*TAU/5;
+      node('path',{d:`M${fmt(b.x+Math.cos(a)*b.r*.75)} ${fmt(b.y+Math.sin(a)*b.r*.75)}l${fmt(Math.cos(a)*7)} ${fmt(Math.sin(a)*7)}`},group);
+    }
+    tween(.38,p=>{ring.setAttribute('r',fmt(b.r*(1+.35*p)));group.setAttribute('opacity',fmt(1-p));},()=>{},group);
+  }
+  function drawBubbles(dt) {
+    for(let i=bubbles.length-1;i>=0;i--){
+      const b=bubbles[i],age=state.uiT-b.start;
+      if(!state.reduced){b.y-=dt*b.vy;b.baseX+=dt*b.vx;b.x=b.baseX+Math.sin(age*.8+b.phase)*15;}
+      trans(b.g,`translate(${fmt(b.x)} ${fmt(b.y)})`);
+      const fadeIn=Math.min(1,age/.5),fadeOut=clamp((22-age)/2,0,1);
+      b.g.setAttribute('opacity',fmt(fadeIn*fadeOut*.87));
+      if(age>22||b.y<45){b.g.remove();bubbles.splice(i,1);}
+    }
+  }
+  $('petButton').addEventListener('click',()=>pet());
+  $('bellButton').addEventListener('click',ringBell);
+  let suppressFeedUntil=0;
+  $('feedButton').addEventListener('click',()=>{if(performance.now()>suppressFeedUntil)feed();});
+  let bubbleHold=null;
+  function stopBubbleHold(){clearInterval(bubbleHold);bubbleHold=null;}
+  $('bubbleButton').addEventListener('pointerdown',event=>{
+    if(event.button!==0)return;
+    spawnBubbles(5);stopBubbleHold();
+    try{event.currentTarget.setPointerCapture(event.pointerId);}catch(_){}
+    bubbleHold=setInterval(()=>{if(document.hidden){stopBubbleHold();return;}spawnBubbles(2);},650);
+  });
+  $('bubbleButton').addEventListener('pointerup',stopBubbleHold);
+  $('bubbleButton').addEventListener('pointercancel',stopBubbleHold);
+  $('bubbleButton').addEventListener('lostpointercapture',stopBubbleHold);
+  $('bubbleButton').addEventListener('click',event=>{if(event.detail===0)spawnBubbles(5);});
+  window.addEventListener('pointerup',stopBubbleHold);
+
+  // Drag a fish from the toolbar to the mouth, or simply click the same button.
+  const mouthContains=p=>p.x>840&&p.x<1000&&p.y>255&&p.y<393;
+  $('feedButton').addEventListener('pointerdown',event=>{
+    if(event.button!==0)return;
+    state.feedDrag={id:event.pointerId,startX:event.clientX,startY:event.clientY,moved:false};
+    try{event.currentTarget.setPointerCapture(event.pointerId);}catch(_){}
+  });
+  $('feedButton').addEventListener('pointermove',event=>{
+    const d=state.feedDrag;if(!d||d.id!==event.pointerId)return;
+    if(Math.hypot(event.clientX-d.startX,event.clientY-d.startY)>7)d.moved=true;
+    if(!d.moved)return;
+    event.preventDefault();
+    $('fishGhost').style.display='block';
+    $('fishGhost').style.transform=`translate(${event.clientX-28}px,${event.clientY-19}px)`;
+    document.body.classList.add('dragging-fish');
+    $('riderBody').classList.toggle('drop-ready',mouthContains(point(event)));
+  });
+  function endFishDrag(event,cancel=false){
+    const d=state.feedDrag;if(!d)return;
+    if(d.moved){
+      suppressFeedUntil=performance.now()+500;
+      if(!cancel){const p=point(event);if(mouthContains(p))feed({x:p.x-35,y:p.y+6});else toast('小鱼先放回口袋。拖到团团嘴边，或点一下就能喂它。');}
+    }
+    state.feedDrag=null;$('fishGhost').style.display='none';document.body.classList.remove('dragging-fish');$('riderBody').classList.remove('drop-ready');
+  }
+  $('feedButton').addEventListener('pointerup',event=>endFishDrag(event));
+  $('feedButton').addEventListener('pointercancel',event=>endFishDrag(event,true));
+  $('feedButton').addEventListener('lostpointercapture',event=>{if(state.feedDrag)endFishDrag(event,true);});
+
+  // Petting is a low-pressure scrub gesture, not a meter or a score.
+  $('riderBody').addEventListener('pointerdown',event=>{if(window.IslandCompanion)return;
+    if(event.button!==0)return;event.preventDefault();
+    state.petting=true;state.petPoint=point(event);pet(state.petPoint,true);
+    try{event.currentTarget.setPointerCapture(event.pointerId);}catch(_){}
+  });
+  $('riderBody').addEventListener('pointermove',event=>{
+    if(!state.petting)return;
+    const p=point(event),old=state.petPoint;
+    if(!old||Math.hypot(p.x-old.x,p.y-old.y)>14){pet(p,false);state.petPoint=p;}
+  });
+  for(const eventName of ['pointerup','pointercancel','lostpointercapture'])$('riderBody').addEventListener(eventName,()=>{state.petting=false;state.petPoint=null;});
+  svg.addEventListener('pointermove',event=>{const p=point(event);state.pointer={x:p.x,y:p.y,inside:true};},{passive:true});
+  svg.addEventListener('pointerleave',()=>{state.pointer.inside=false;});
+  function accessibleAction(element,action,click=true){
+    if(click)element.addEventListener('click',event=>{event.stopPropagation();action();});
+    element.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();action();}});
+  }
+  // Companion gestures and keyboard activation are shared with the collection.
+  accessibleAction($('bellRig'),ringBell);
+  accessibleAction($('boat'),waveBoat);
+  accessibleAction($('celestial'),cycleWeather);
+
+  // Clouds drift independently, and return gently after being moved.
+  const clouds=[
+    {id:'cloud1',baseX:516,baseY:112,scale:1.05,speed:3.1,ox:0,oy:0},
+    {id:'cloud2',baseX:981,baseY:88,scale:.72,speed:4.4,ox:0,oy:0},
+    {id:'cloud3',baseX:114,baseY:263,scale:.73,speed:2.7,ox:0,oy:0},
+    {id:'cloud4',baseX:1315,baseY:276,scale:1.23,speed:3.8,ox:0,oy:0}
+  ];
+  clouds.forEach((cloud,index)=>{
+    cloud.el=$(cloud.id);cloud.el.setAttribute('tabindex','0');cloud.el.setAttribute('role','button');cloud.el.setAttribute('aria-label','拖一朵云，或按 Enter 轻轻推它');
+    cloud.el.addEventListener('pointerdown',event=>{
+      if(event.button!==0)return;event.preventDefault();event.stopPropagation();
+      const p=point(event);state.cloudDrag={index,id:event.pointerId,x:p.x,y:p.y,ox:cloud.ox,oy:cloud.oy};
+      try{cloud.el.setPointerCapture(event.pointerId);}catch(_){}
+    });
+    cloud.el.addEventListener('pointermove',event=>{
+      const d=state.cloudDrag;if(!d||d.index!==index||d.id!==event.pointerId)return;
+      event.preventDefault();const p=point(event);
+      cloud.ox=clamp(d.ox+p.x-d.x,-540,540);cloud.oy=clamp(d.oy+p.y-d.y,-100,180);
+    });
+    for(const eventName of ['pointerup','pointercancel','lostpointercapture'])cloud.el.addEventListener(eventName,()=>{if(state.cloudDrag?.index===index)state.cloudDrag=null;});
+    cloud.el.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();cloud.ox-=55;say('这朵云，也可以慢一点。',2400);}
+    });
+  });
+  const stars=[];
+  for(let i=0;i<36;i++){
+    const x=rand(430,1395),y=rand(32,348),r=rand(.8,2);
+    const circle=node('circle',{cx:x,cy:y,r,opacity:rand(.2,.7)},$('stars'));
+    stars.push({el:circle,phase:rand(0,TAU)});
+  }
+  const rain=[];
+  for(let i=0;i<48;i++){
+    const drop=node('path',{d:'M0 0l-4 13',stroke:'#f4f7ee','stroke-width':1.25,'stroke-linecap':'round',opacity:rand(.14,.32)},$('rainLayer'));
+    rain.push({el:drop,x:rand(-40,1490),y:rand(-100,800),speed:rand(90,150)});
+  }
+
+  const rig={};
+  for(const key of ['riderBody','head','jaw','eyeOpen','eyeHappy','blush','tail','scarfTail','rearSpokes','frontSpokes','chainRing','chain','hipFluff','farLeg','nearLeg','nearLegInner','nearCrank','farCrank','nearFoot','farFoot','bikeShadow','boardPattern','sandPattern','wavePattern','dunes','foreground','roadside','boat','bellRig','gullA','gullB','distantBirds'])rig[key]=$(key);
+  function leg(side,angle,hip){
+    const px=831+Math.cos(angle)*30,py=626+Math.sin(angle)*30;
+    const ankle={x:px-4,y:py-20};
+    const dx=ankle.x-hip.x,dy=ankle.y-hip.y,actual=Math.hypot(dx,dy);
+    const distance=clamp(actual,.01,167-.01),upper=84,lower=83;
+    const ux=dx/(actual||1),uy=dy/(actual||1);
+    const a=(upper*upper-lower*lower+distance*distance)/(2*distance);
+    const h=Math.sqrt(Math.max(0,upper*upper-a*a));
+    const knee={x:hip.x+a*ux+h*uy,y:hip.y+a*uy-h*ux};
+    const line=`M${fmt(hip.x)} ${fmt(hip.y)}L${fmt(knee.x)} ${fmt(knee.y)}L${fmt(ankle.x)} ${fmt(ankle.y)}`;
+    path(rig[side+'Leg'],line);if(side==='near')path(rig.nearLegInner,line);
+    path(rig[side+'Crank'],`M831 626L${fmt(px)} ${fmt(py)}`);
+    trans(rig[side+'Foot'],`translate(${fmt(px)} ${fmt(py-12)})`);
+  }
+  function drawScene(dt){
+    const t=state.worldT,phase=state.rideT*2.65-.3,wheel=state.rideT*2.65*1.7,travel=wheel*81;
+    const feedAge=state.uiT-state.feedStart;
+    const feeding=feedAge>=0&&feedAge<1.85;
+    const petting=state.uiT<state.petUntil;
+    const happy=petting||state.uiT<state.fedUntil;
+    const joy=petting&&!state.reduced?Math.sin(state.uiT*6)*1.1:0;
+    const bob=(state.reduced?0:Math.sin(phase*2)*1.1)+joy;
+    trans(rig.rearSpokes,`rotate(${fmt(wheel*180/Math.PI%360)})`);
+    trans(rig.frontSpokes,`rotate(${fmt(wheel*180/Math.PI%360)})`);
+    trans(rig.chainRing,`translate(831 626) rotate(${fmt(phase*180/Math.PI%360)})`);
+    rig.chain.setAttribute('stroke-dashoffset',fmt(-phase*25));
+    trans(rig.riderBody,`translate(0 ${fmt(bob)})`);trans(rig.hipFluff,`translate(0 ${fmt(bob)})`);
+    leg('far',phase+Math.PI,{x:782,y:492+bob});leg('near',phase,{x:801,y:494+bob});
+    const targetX=state.pointer.inside?clamp((state.pointer.x-895)/170,-2.1,2.1):0;
+    const targetY=state.pointer.inside?clamp((state.pointer.y-279)/200,-1.4,1.6):0;
+    state.gazeX+=(targetX-state.gazeX)*(1-Math.exp(-dt*5));state.gazeY+=(targetY-state.gazeY)*(1-Math.exp(-dt*5));
+    const blinkPhase=t%6.3;
+    const blink=!happy && !state.reduced && blinkPhase>6.02 ? clamp(Math.abs(blinkPhase-6.14)/.12,.07,1) : 1;
+    trans(rig.eyeOpen,`translate(${fmt(895+state.gazeX)} ${fmt(279+state.gazeY)}) scale(1 ${fmt(blink)})`);
+    rig.eyeOpen.setAttribute('opacity',happy?'0':'1');rig.eyeHappy.setAttribute('opacity',happy?'1':'0');
+    rig.blush.setAttribute('opacity',happy?'.88':'.55');
+    const headTilt=feeding?(state.reduced?0:-Math.sin(feedAge/1.85*Math.PI)*3.5):(happy&&!state.reduced?Math.sin(state.uiT*3.4)*1.6:state.gazeX*.32);
+    trans(rig.head,`rotate(${fmt(headTilt*.65)} 873 357)`);
+    const jawOpen=feeding?Math.max(0,Math.sin(clamp(feedAge/1.5,0,1)*Math.PI))*12:0;
+    trans(rig.jaw,`rotate(${fmt(jawOpen)} 928 301)`);
+    const scarfSwing=state.reduced?0:Math.sin(t*2.4)*2.4+Math.sin(t*3.8)*.5;
+    trans(rig.scarfTail,`rotate(${fmt(scarfSwing)} 860 355)`);
+    trans(rig.tail,`rotate(${fmt(state.reduced?0:Math.sin(t*2.2)*1.3)} 710 425)`);
+    rig.bikeShadow.setAttribute('rx',fmt(244+Math.sin(phase*2)*1.4));
+    rig.boardPattern.setAttribute('patternTransform',`translate(${fmt(-travel%155)} 0)`);
+    rig.sandPattern.setAttribute('patternTransform',`translate(${fmt(-travel%180)} 0)`);
+    rig.wavePattern.setAttribute('patternTransform',`translate(${fmt(-t*9%240)} 0)`);
+    trans(rig.dunes,`translate(${fmt(-state.rideT*30%1440)} 0)`);
+    trans(rig.foreground,`translate(${fmt(-travel*1.06%1440)} 0)`);
+    trans(rig.roadside,`translate(${fmt(1530-((state.rideT*90+192)%1740))} 0)`);
+    const boatAge=state.uiT-state.boatStart;
+    const rocking=boatAge<3&&!state.reduced?Math.sin(boatAge*5)*7*(1-boatAge/3):0;
+    trans(rig.boat,`translate(${fmt((mobileQuery.matches?1105:1200)+Math.sin(t*.13)*23)} ${fmt(453+Math.sin(t*.9)*1.2)}) rotate(${fmt(Math.sin(t*.9)*1.4+rocking)})`);
+    const bellAge=state.uiT-state.bellStart;
+    trans(rig.bellRig,`rotate(${fmt(bellAge<1.1&&!state.reduced?Math.sin(bellAge*24)*6*(1-bellAge/1.1):0)} 960 436)`);
+    trans(rig.distantBirds,`translate(${fmt(Math.sin(t*.12)*18)} ${fmt(Math.sin(t*.3)*6)})`);
+    const flap=Math.sin(t*1.7)*3;
+    path(rig.gullA,`M568 ${fmt(210+flap)}Q577 201 587 210Q596 201 606 ${fmt(210+flap)}`);
+    path(rig.gullB,`M613 ${fmt(186-flap*.7)}Q620 180 627 186Q634 180 641 ${fmt(186-flap*.7)}`);
+    clouds.forEach((cloud,index)=>{
+      if(state.cloudDrag?.index!==index&&!state.reduced){const returnAmount=Math.exp(-dt*.42);cloud.ox*=returnAmount;cloud.oy*=returnAmount;}
+      const drift=state.reduced?0:t*cloud.speed;
+      const x=((cloud.baseX-drift+210)%1720+1720)%1720-210;
+      trans(cloud.el,`translate(${fmt(x+cloud.ox)} ${fmt(cloud.baseY+cloud.oy)}) scale(${cloud.scale})`);
+    });
+    if(state.weather==='night')stars.forEach(s=>s.el.setAttribute('opacity',fmt(.35+Math.sin(t*.5+s.phase)*.22)));
+    if(state.weather==='rain')rain.forEach(r=>{
+      const y=(r.y+t*r.speed)%970-90;
+      trans(r.el,`translate(${fmt(r.x-(y-r.y)*.06)} ${fmt(y)})`);
+    });
+  }
+
+  function updatePlaybackUI(){
+    $('pauseButton').setAttribute('aria-pressed',String(!state.running));
+    $('pauseButton').setAttribute('aria-label',state.running?'暂停骑行':'继续骑行');
+    $('pauseButton').title=state.running?'暂停骑行，不会暂停声音 · 空格':'继续慢慢骑 · 空格';
+    $('pauseIcon').setAttribute('href',state.running?'#i-pause':'#i-play');
+  }
+  function togglePlayback(){state.running=!state.running;updatePlaybackUI();$('liveStatus').textContent=state.running?'团团继续慢慢骑。':'团团停下来歇一会儿，声音不会暂停。';}
+  $('pauseButton').addEventListener('click',togglePlayback);
+  $('speed').value=state.speed;$('speedValue').textContent=state.speed.toFixed(2)+'×';
+  $('speed').addEventListener('input',event=>{
+    state.speed=Number(event.target.value);rangeFill(event.target);
+    $('speedValue').textContent=state.speed.toFixed(2)+'×';event.target.setAttribute('aria-valuetext',state.speed.toFixed(2)+' 倍速');savePrefs();
+  });
+  $('breathButton').addEventListener('click',()=>{
+    state.breathing=!state.breathing;state.breathStart=state.uiT;
+    document.body.classList.toggle('breathing',state.breathing);
+    $('breathButton').setAttribute('aria-pressed',String(state.breathing));
+    if(state.breathing)say('跟着海风，轻轻吸气，慢慢呼气。',3400);
+  });
+  function drawBreath(){
+    if(!state.breathing)return;
+    const p=(state.uiT-state.breathStart)%10;
+    const inhale=p<4;
+    const expansion=inhale ? .5-.5*Math.cos(Math.PI*p/4) : .5+.5*Math.cos(Math.PI*(p-4)/6);
+    $('breathCore').style.transform=`scale(${state.reduced?1:(.72+expansion*.7).toFixed(3)})`;
+    const label=inhale?'轻轻吸气':'慢慢呼气';
+    if($('breathText').textContent!==label)$('breathText').textContent=label;
+  }
+  function immersive(enabled){
+    state.immersive=enabled;document.body.classList.toggle('immersive',enabled);fitScene();
+    if(enabled)$('exitImmersive').focus({preventScroll:true});else $('immersiveButton').focus({preventScroll:true});
+  }
+  $('immersiveButton').addEventListener('click',()=>immersive(true));
+  $('exitImmersive').addEventListener('click',()=>immersive(false));
+
+  // Wall-clock timeout; the AudioContext itself schedules the final fade, including
+  // while the page is in the background. Browsers may still suspend background audio.
+  function finishRest(){
+    clearTimeout(timerHandle);state.deadline=0;state.sound=false;state.running=false;
+    audio.mute();updateAudioUI();updatePlaybackUI();$('sleepTimer').value='0';
+    $('timerCount').textContent='这一小段海风，先陪你到这里。';
+    say('休息时间到了。团团陪你停一会儿。',6000);
+  }
+  $('sleepTimer').addEventListener('change',()=>{
+    const minutes=Number($('sleepTimer').value);clearTimeout(timerHandle);
+    state.deadline=minutes?Date.now()+minutes*60000:0;audio.setSleep(state.deadline);
+    if(minutes){timerHandle=setTimeout(finishRest,minutes*60000);toast(`${minutes} 分钟后，声音会慢慢淡出，团团也会停下来。`);}
+    else $('timerCount').textContent='暂停画面，也可以只听海。';
+    updateTimer();
+  });
+  function updateTimer(){
+    if(!state.deadline)return;
+    const remaining=Math.max(0,Math.ceil((state.deadline-Date.now())/1000));
+    if(!remaining){finishRest();return;}
+    const minutes=Math.floor(remaining/60),seconds=remaining%60;
+    $('timerCount').textContent=`${minutes}:${String(seconds).padStart(2,'0')} 后慢慢收声${remaining<=20?' · 正在淡出':''}`;
+  }
+  setInterval(updateTimer,1000);
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&state.immersive){event.preventDefault();immersive(false);return;}
+    if(event.repeat||event.ctrlKey||event.metaKey||event.altKey)return;
+    const target=event.target;
+    if(target instanceof Element && target.closest('input,textarea,select,button,[contenteditable="true"],[role="button"]'))return;
+    const actions={KeyM:toggleSound,KeyP:()=>pet(),KeyF:()=>feed(),KeyB:()=>spawnBubbles(5),KeyL:ringBell,Space:togglePlayback};
+    const action=actions[event.code];if(action){event.preventDefault();action();}
+  });
+  function reducedChanged(event){
+    state.reduced=event.matches;
+    if(event.matches){state.running=false;updatePlaybackUI();}
+  }
+  if(motionQuery.addEventListener)motionQuery.addEventListener('change',reducedChanged);else motionQuery.addListener(reducedChanged);
+  document.addEventListener('visibilitychange',()=>{
+    state.lastFrame=null;if(document.hidden){stopBubbleHold();state.petting=false;state.cloudDrag=null;}
+    else updateTimer();
+  });
+  window.addEventListener('pagehide',()=>{stopBubbleHold();if(audio.ctx)audio.ctx.suspend().catch(()=>{});});
+  window.addEventListener('pageshow',event=>{if(event.persisted){state.sound=false;audio.mute();updateAudioUI();state.lastFrame=null;}});
+  window.addEventListener('blur',()=>{stopBubbleHold();state.petting=false;state.cloudDrag=null;});
+
+  // A deliberately gentle 30 fps visual clock. Audio runs independently.
+  function frame(now){
+    requestAnimationFrame(frame);
+    if(document.hidden)return;
+    if(state.lastFrame===null){state.lastFrame=now;return;}
+    if(now-state.lastFrame<1000/30)return;
+    const dt=Math.min((now-state.lastFrame)/1000,.08);state.lastFrame=now;
+    state.uiT+=dt;
+    if(state.running){state.rideT+=dt*state.speed;if(!state.reduced)state.worldT+=dt;}
+    drawScene(dt);advanceTweens();drawBubbles(dt);drawBreath();
+  }
+  updateMixer();setWeather(state.weather,false,false);updatePlaybackUI();updateAudioUI();
+  document.querySelectorAll('input[type="range"]').forEach(rangeFill);
+  drawScene(.033);requestAnimationFrame(frame);
+  setTimeout(()=>say('你好呀，我是团团。摸摸我的头吧。',5200),900);
+  setTimeout(()=>{if(!state.reduced&&state.running&&!document.hidden)spawnBubbles(3);},6200);
+window.IslandCompanion={name:'团团',fullName:'鹈鹕团团',snack:'小鱼',point,pet:p=>pet(p,false),say,paused:()=>!state.running,sound:type=>type==='pop'?audio.pop():type==='nibble'?audio.drop():audio.bell(),effect:(kind,p,n=1)=>{if(kind==='bubble')spawnBubbles(n);}};
+})();
+</script>
+<script src="assets/companions.js"></script></body>
+</html>
