@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>慢慢岛 · 动作逐帧检查</title>
+<style>body{margin:12px;background:#e9e7df;color:#374334;font:13px system-ui}header{position:sticky;top:0;background:#e9e7df;padding:10px;z-index:20}button{padding:8px 16px}section{display:grid;grid-template-columns:repeat(6,210px);gap:4px;margin:9px 0}h2{grid-column:1/-1;font-size:14px;margin:2px}figure{margin:0;background:#faf8ef}figure>svg{display:block;width:210px;height:245px}figcaption{padding:3px}iframe{position:fixed;left:0;top:0;width:1200px;height:1050px;transform:scale(.1);transform-origin:top left;opacity:.001;pointer-events:none;z-index:-1}</style>
+<header><button data-mode="pet">录制抚摸全过程</button> <button data-mode="toy">录制玩耍全过程</button> <button data-mode="treat">录制喂食全过程</button> <button data-mode="scene">录制场景动作</button> <output id="status">加载中</output></header><main></main>
+<script>
+const files=['01-seaside','02-rainy-bookshop','03-forest-swing','04-hot-spring','05-moonlit-boat','06-snowy-fireplace','07-cloud-post','08-bamboo-tea','09-flower-garden','10-starry-camp','pelican_bicycle_relax_fixed'];
+const crops=[[600,40,440,600],[655,260,440,420],[600,165,450,470],[575,310,510,330],[580,235,500,390],[630,250,400,390],[650,250,400,350],[650,255,420,390],[660,365,450,300],[615,310,450,360],[570,40,550,650]];
+const actions=['bell','page','swing','citrus','paddle','cocoa','letter','pour','water','toast','bell'];
+const main=document.querySelector('main'),status=document.querySelector('output'),frames=[],NS='http://www.w3.org/2000/svg';
+let seq=0;const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function capture(frame,index,section,time){
+ const d=frame.contentDocument,src=d.querySelector('#art,#sceneSvg'),copy=src.cloneNode(true),serial=++seq;copy.setAttribute('style',d.documentElement.getAttribute('style')||'');
+ const styles=frame.contentWindow.getComputedStyle(src);for(const key of styles)if(key.startsWith('--'))copy.style.setProperty(key,styles.getPropertyValue(key));
+ copy.querySelectorAll('foreignObject').forEach((el,i)=>{const c=src.querySelectorAll('canvas')[i];if(!c)return;const img=d.createElementNS(NS,'image');for(const key of ['x','y','width','height'])img.setAttribute(key,el.getAttribute(key));img.setAttribute('href',c.toDataURL());img.setAttribute('style',el.getAttribute('style'));el.replaceWith(img);});
+ copy.querySelectorAll('image').forEach(el=>{const url=el.getAttribute('href');if(url&&!url.startsWith('data:'))el.setAttribute('href',new URL(url,frame.src));});
+ copy.querySelectorAll('[id]').forEach(el=>{const old=el.id;el.id='shot'+serial+'_'+old;copy.querySelectorAll('*').forEach(n=>{for(const a of [...n.attributes])if(a.value.includes('url(#'+old+')'))n.setAttribute(a.name,a.value.replaceAll('url(#'+old+')','url(#shot'+serial+'_'+old+')'));});});
+ const cursor=d.querySelector('.companion-cursor.is-visible');if(cursor){const r=cursor.getBoundingClientRect(),p=src.createSVGPoint();p.x=r.x;p.y=r.y;const m=src.getScreenCTM(),q=p.matrixTransform(m.inverse()),hand=cursor.querySelector('svg').cloneNode(true);hand.setAttribute('x',q.x);hand.setAttribute('y',q.y);hand.setAttribute('width',r.width/m.a);hand.setAttribute('height',r.height/m.d);copy.append(hand);}
+ copy.removeAttribute('id');copy.setAttribute('viewBox',crops[index].join(' '));copy.setAttribute('preserveAspectRatio','xMidYMid meet');copy.querySelectorAll('.companion-focus,.companion-touch-target').forEach(el=>el.remove());
+ const fig=document.createElement('figure');fig.append(copy);const cap=document.createElement('figcaption');cap.textContent=time+'s';fig.append(cap);section.append(fig);
+}
+async function record(mode){document.querySelectorAll('button').forEach(b=>b.disabled=true);main.replaceChildren();status.textContent='录制中 '+mode;
+ const sections=frames.map((f,i)=>{const s=document.createElement('section');s.innerHTML='<h2>'+files[i]+'</h2>';main.append(s);return s;});
+ frames.forEach((f,i)=>{const d=f.contentDocument;if(mode==='scene'){d.querySelector('button[data-act="'+actions[i]+'"]')?.click();}else{d.querySelector('[data-tool='+mode+']').click();d.querySelector('.companion-hit').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));}});
+ const start=performance.now();for(const time of [0,.45,.95,1.6,2.3,3.4]){await sleep(Math.max(0,time*1000-(performance.now()-start)));frames.forEach((f,i)=>capture(f,i,sections[i],time));}
+ status.textContent='完成 '+mode+' · 11 个场景 × 6 帧';document.querySelectorAll('button').forEach(b=>b.disabled=false);
+}
+Promise.all(files.map((file,i)=>new Promise(resolve=>{const f=document.createElement('iframe');frames[i]=f;f.onload=resolve;f.src='../'+file+'.html?motioncheck=2';document.body.append(f);}))).then(async()=>{await sleep(700);status.textContent='11 个场景已就绪';});
+document.querySelectorAll('button').forEach(b=>b.onclick=()=>record(b.dataset.mode));
+</script>

@@ -99,13 +99,14 @@ C.mix.forEach(([key])=>{const el=$('mix-'+key);el.value=Math.round(S.levels[key]
 /* Lightweight, bounded SVG particles; never a scoreboard or a demand for attention. */
 const particles=[],drawings=[],flowerNodes=[];
 const fx=$('effects'),bubbles=$('bubbleLayer');
+let waterRipples=fx;if(C.index===3){const clip=node('clipPath',{id:'surfaceWaterClip'},svg.querySelector('defs'));node('ellipse',{cx:817,cy:533,rx:259,ry:70},clip);waterRipples=node('g',{'clip-path':'url(#surfaceWaterClip)'},fx);}
 const P={pet:C.pet||[820,370]};
 function dropOld(){while(particles.length>130){particles.shift().el.remove();}}
 function particle(kind,x,y,opts={}){
  let el,life=opts.life||rnd(2.5,4),s=opts.scale||1,vx=opts.vx??rnd(-18,18),vy=opts.vy??-rnd(14,35),color=opts.color||'#fff2cb';
  if(kind==='heart')el=node('path',{d:'M0 4C-24-9-9-24 0-13 9-24 24-9 0 4Z',fill:opts.color||'#e1b09f'},fx);
  else if(kind==='leaf')el=node('path',{d:'M-12 4Q-12-16 13-10 14 10-12 4Z',fill:opts.color||['#b8c399','#c9c398','#a7b795'][Math.floor(rnd(0,3))]},fx);
- else if(kind==='ripple'){el=node('ellipse',{cx:0,cy:0,rx:10,ry:3,fill:'none',stroke:C.night?'#e9dab5':'#fff9e1','stroke-width':1.8},fx);life=2.5;vx=vy=0;}
+ else if(kind==='ripple'){el=node('ellipse',{cx:0,cy:0,rx:10,ry:3,fill:'none',stroke:C.night?'#e9dab5':'#fff9e1','stroke-width':1.8},waterRipples);life=2.5;vx=vy=0;}
  else if(kind==='bubble'){el=node('g',{'class':'fx-bubble',role:'button',tabindex:'0','aria-label':'戳破小泡泡'},bubbles);const r=opts.r||rnd(13,26);node('circle',{r,fill:'#fffdf1','fill-opacity':.13,stroke:C.night?'#dad7e9':'#fafcf0','stroke-width':1.7},el);node('path',{d:`M${-r*.6} ${-r*.2}q0 ${-r*.42} ${r*.45} ${-r*.46}`,fill:'none',stroke:'#fff9e9','stroke-width':2,'stroke-linecap':'round'},el);life=rnd(9,14);vy=-rnd(22,44);el.addEventListener('pointerdown',e=>e.stopPropagation());const pop=e=>{e.stopPropagation();const p=particles.find(p=>p.el===el);if(p){p.life=0;burst(p.x,p.y,4,'spark');sound.sfx('pop');}};el.addEventListener('click',pop);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pop(e);}});}
  else if(kind==='steam'){el=node('path',{d:'M0 0q-15-17 0-33t-2-27',fill:'none',stroke:'#fff9e9','stroke-width':opts.width||7,'stroke-linecap':'round',opacity:.5},fx);life=3.5;vx=rnd(-3,3);vy=-14;}
  else if(kind==='orange'){el=node('g',{},fx);node('circle',{r:15,fill:'#e7bb65',stroke:'#bba367','stroke-width':1.5},el);node('path',{d:'M0-15q-3-12 5-15m-1 3q16-10 18-1-8 6-18 1',fill:'#aabb84',stroke:'#91a66f','stroke-width':1.5},el);life=11;vx=rnd(-9,9);vy=opts.drop?65:0;}
@@ -130,7 +131,7 @@ function updateParticles(dt){for(let i=particles.length-1;i>=0;i--){const p=part
  else if(p.kind==='butterfly'){p.x+=Math.cos(p.age*2+p.phase)*24*dt*travel;p.y+=Math.sin(p.age*2)*14*dt*travel;const flap=S.reduced?1:.58+.35*Math.cos(p.age*13);p.el.setAttribute('transform',`translate(${f(p.x)} ${f(p.y)}) scale(${f(size*flap)} ${f(size)})`);p.el.setAttribute('opacity',f(opacity));continue;}
  else if(p.kind==='bubble')p.x+=Math.sin(p.age+p.phase)*12*dt*travel;
  else if(p.kind==='steam'){size*=1+ratio*.6;opacity=.5*(1-ratio);}
- else if(p.kind==='orange'){if(p.drop&&p.y>553){p.y=553;p.vy=0;p.drop=false;makeRipples(p.x,562);}p.y+=Math.sin(p.age*2+p.phase)*2*dt;angle=Math.sin(p.age+p.phase)*8;}
+ else if(p.kind==='orange'){if(p.drop&&p.y>553){p.y=553;p.vy=0;p.drop=false;makeRipples(p.x,562);}p.x=clamp(p.x,p.startX<815?640:938,p.startX<815?690:996);p.y+=Math.sin(p.age*2+p.phase)*2*dt;angle=Math.sin(p.age+p.phase)*8;}
  else if(p.kind==='lantern'){size*=1-ratio*.42;p.y+=Math.sin(p.age)*2*dt;angle=Math.sin(p.age)*2;}
  else if(p.kind==='letter')angle=Math.sin(p.age*2)*12;
  else if(p.kind==='fish'){const q=Math.min(1,p.age/.95),ease=q*q*(3-2*q);p.x=p.startX+(907-p.startX)*ease;p.y=p.startY+(220-p.startY)*ease-Math.sin(q*Math.PI)*70;opacity=q<.9?1:Math.max(0,(1-q)*10);}
@@ -147,22 +148,22 @@ function act(kind,p=null,announce=true){
  else if(kind==='bubbles')bubbleBatch(6);
  else if(kind==='bell'||kind==='chime'){burst(kind==='bell'?937:981,kind==='bell'?319:165,5,'spark');}
  else if(kind==='page'){const book=$('book');if(book&&!S.reduced)book.animate([{opacity:.55},{opacity:1}],{duration:700});burst(822,510,3,'spark');}
- else if(['tea','cocoa','steam','pour'].includes(kind)){const [x,y]=kind==='tea'?[1055,505]:kind==='cocoa'?[758,436]:kind==='pour'?[827,510]:[805,451];for(let i=0;i<4;i++)particle('steam',x+rnd(-25,25),y+rnd(-10,10));if(kind==='pour')for(let i=0;i<6;i++)particle('drop',867+rnd(-8,8),517+rnd(-9,9),{scale:.45});}
+ else if(['tea','cocoa','steam','pour'].includes(kind)){const mug=window.IslandCompanion.anchor?.('mug'),[x,y]=kind==='tea'?[1055,492]:kind==='cocoa'&&mug?[mug.x,mug.y]:kind==='pour'?[827,522]:[805,451];for(let i=0;i<(kind==='steam'?4:2);i++)particle('steam',x+rnd(-5,5),y+rnd(-2,2),{scale:kind==='steam'?.6:.38,width:3});}
  else if(kind==='draw'){$('drawAction')?.classList.toggle('active');}
  else if(kind==='swing'){S.omega=clamp(S.omega+.28,-.65,.65);}
  else if(kind==='leaves'||kind==='bamboo'){for(let i=0;i<13;i++)particle('leaf',rnd(615,1100),rnd(170,355),{life:rnd(4,7),scale:rnd(.5,.85)});}
  else if(kind==='butterflies'){for(let i=0;i<4;i++)particle('butterfly',rnd(575,1040),rnd(435,590),{scale:rnd(.38,.65)});}
- else if(kind==='citrus')particle('orange',p?.x||rnd(664,985),p?.y||435,{drop:true});
+ else if(kind==='citrus'){let x=p?.x??(Math.random()<.5?rnd(650,685):rnd(948,983));if(x>695&&x<930)x=x<815?680:950;particle('orange',clamp(x,645,990),Math.min(p?.y??435,548),{drop:true});}
  else if(kind==='ripple')makeRipples(p?.x||rnd(665,1000),p?.y||(C.index===3?569:C.index===4?602:491));
  else if(kind==='paddle'){S.boatX=clamp(S.boatX-20,-90,90);makeRipples(985+S.boatX,606+S.boatY);}
  else if(kind==='lantern')particle('lantern',rnd(675,1040),rnd(599,655));
  else if(kind==='shoot')particle('shoot',rnd(582,787),rnd(80,175));
  else if(kind==='fire'){S.flame=1;for(let i=0;i<7;i++)particle('spark',C.index===5?1039:946,C.index===5?479:579,{scale:.3,life:2});}
  else if(kind==='snow'){for(let i=0;i<20;i++)particle('snow',rnd(1084,1144),rnd(554,583));}
- else if(kind==='letter')particle('letter',835,501,{scale:1.1});
+ else if(kind==='letter'){const q=window.IslandCompanion.anchor?.('letter')||{x:835,y:501};particle('letter',q.x,q.y,{scale:.7});}
  else if(kind==='lift'){S.liftTarget=clamp(S.liftTarget-32,-48,26);if(S.liftTarget<=-48)S.liftTarget=15;}
  else if(kind==='cloud'){for(let i=0;i<9;i++)particle('bubble',rnd(480,1080),rnd(300,570),{r:rnd(14,28)});}
- else if(kind==='water'){for(let i=0;i<20;i++)particle('drop',rnd(1056,1116),rnd(549,579),{scale:rnd(.4,.7)});document.querySelectorAll('.garden-flower').forEach(el=>{if(!S.reduced)el.animate([{opacity:.6},{opacity:1}],{duration:1100});});}
+ else if(kind==='water'){document.querySelectorAll('.garden-flower').forEach(el=>{if(!S.reduced)el.animate([{opacity:.6},{opacity:1}],{duration:1100});});}
  else if(kind==='plant')growFlower(clamp(p?.x||rnd(475,1150),455,1145),clamp(p?.y||rnd(590,642),565,650));
  else if(kind==='toast'){S.happy=S.ui+3;burst(937,542,4,'spark');}
  else if(kind==='fireflies'){for(let i=0;i<14;i++)particle('firefly',rnd(475,1140),rnd(349,625),{scale:rnd(.25,.5)});}
@@ -232,8 +233,8 @@ function drawScene(dt){
  if(C.index===2){if(S.drag?.kind!=='swing'){if(!S.reduced&&S.run){S.omega+=(-1.3*S.angle-.27*S.omega)*dt;S.angle=clamp(S.angle+S.omega*dt,-.34,.34);}if(S.reduced)S.angle*=Math.exp(-dt*4);}transform($('swingRig'),`translate(827 148) rotate(${f(S.angle*180/Math.PI)})`);}
  if(C.index===4){if(S.run&&!S.reduced&&S.drag?.kind!=='boat'){S.boatX*=Math.exp(-dt*.16);S.boatY*=Math.exp(-dt*.3);}const wave=S.reduced?0:Math.sin(t*.8)*3;transform($('boatRig'),`translate(${f(826+S.boatX)} ${f(495+S.boatY+wave)}) rotate(${f(S.reduced?0:Math.sin(t*.7)*1.2)})`);const stroke=S.action==='paddle'&&age<2?Math.sin(age*Math.PI)*12:0;transform($('paddle'),`translate(105 -20) rotate(${f(stroke)})`);}
  if(C.index===6){if(S.run&&!S.reduced)S.lift+=(S.liftTarget-S.lift)*(1-Math.exp(-dt*3));if(S.drag?.kind!=='balloon')S.balloonX*=Math.exp(-dt*.12);transform($('balloonRig'),`translate(${f(837+S.balloonX)} ${f(445+S.lift+(S.reduced?0:Math.sin(t*.7)*4))}) rotate(${f(S.reduced?0:Math.sin(t*.38)*1.2)} 0 -140)`);}
- if(C.index===7){const theta=S.action==='chime'&&age<5?Math.sin(age*7)*10*Math.exp(-age*.55):S.reduced?0:Math.sin(t)*1.3;transform($('windChime'),`translate(981 105) rotate(${f(theta)})`);transform($('teapot'),`translate(931 531) rotate(${f(S.action==='pour'&&age<2.3?-Math.sin(age/2.3*Math.PI)*23:0)})`);}
- if(C.index===8)transform($('wateringCan'),`translate(1010 580) rotate(${f(S.action==='water'&&age<2.4?Math.sin(age/2.4*Math.PI)*20:0)})`);
+ if(C.index===7){const theta=S.action==='chime'&&age<5?Math.sin(age*7)*10*Math.exp(-age*.55):S.reduced?0:Math.sin(t)*1.3;transform($('windChime'),`translate(981 105) rotate(${f(theta)})`);const pour=S.action==='pour'&&age<2.3&&!S.reduced?Math.sin(age/2.3*Math.PI):0;transform($('teapot'),`translate(${f(931-pour*40)} ${f(531-pour*13)}) rotate(${f(-pour*23)})`);let stream=$('teaStream');if(!stream)stream=node('path',{id:'teaStream',fill:'none',stroke:'#c2a577','stroke-width':2,'stroke-linecap':'round','pointer-events':'none'},fx);const a=-pour*23*Math.PI/180,x=931-pour*40-49*Math.cos(a)+34*Math.sin(a),y=531-pour*13-49*Math.sin(a)-34*Math.cos(a);stream.setAttribute('d',`M${f(x)} ${f(y)}Q${f(x-9)} ${f(y+9)} 827 523`);stream.setAttribute('opacity',pour>.45?f((pour-.45)/.55*.7):0);}
+ if(C.index===8){const pour=S.action==='water'&&age<2.4&&!S.reduced?Math.sin(age/2.4*Math.PI):0,a=pour*20*Math.PI/180;transform($('wateringCan'),`translate(1010 580) rotate(${f(pour*20)})`);let spray=$('gardenSpray');if(!spray)spray=node('path',{id:'gardenSpray',fill:'none',stroke:'#a8c4c0','stroke-width':2,'stroke-linecap':'round','stroke-dasharray':'3 6','pointer-events':'none'},fx);const x=1010+66*Math.cos(a)+30*Math.sin(a),y=580+66*Math.sin(a)-30*Math.cos(a);spray.setAttribute('d',[-7,0,7].map(j=>`M${f(x+j*.3)} ${f(y+j*.4)}Q${f(x+13+j)} ${f(y+15)} ${f(x+20+j*2)} 623`).join(' '));spray.setAttribute('opacity',pour>.25?f(pour*.75):0);}
  if(C.index===9){const warm=S.action==='toast'&&age<9;const marsh=$('marshmallow');if(marsh)marsh.setAttribute('fill',warm&&age>1.3?'#dfbc93':'#f5e5c7');transform($('toastStick'),`rotate(${f(S.action==='toast'&&age<3?Math.sin(age/3*Math.PI)*7:0)} 846 560)`);}
  const snow=$('snowGlobe');if(snow)transform(snow,`translate(1113 601) rotate(${f(S.action==='snow'&&age<2&&!S.reduced?Math.sin(age*12)*7*(1-age/2):0)})`);
  const weather=$('weatherLines');if(weather)transform(weather,`translate(${C.index===1?-((t*4)%9):0} ${f(S.reduced?0:Math.sin(t*.6)*7)})`);

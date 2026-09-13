@@ -1,0 +1,71 @@
+<!doctype html><meta charset="utf-8"><title>Sound envelope check</title><button id="run">检查声音包络</button><pre id="output">等待检查</pre><script>let C,S;const rnd=(a,b)=>a+Math.random()*(b-a);function audioUI(){}function say(){}class SoundGarden{
+ constructor(){this.ctx=null;this.channels={};this.enabled=false;this.nextBird=0;this.nextFire=0;this.sleepEnd=0;this.suspendTimer=0;}
+ async init(){
+  if(this.ctx)return;
+  const AC=function(){return new OfflineAudioContext(2,44100*4,44100);};if(!AC)throw Error('浏览器不支持 Web Audio');
+  this.ctx=new AC();const a=this.ctx;
+  this.master=a.createGain();this.master.gain.value=0;
+  this.sleep=a.createGain();this.sleep.gain.value=1;
+  this.limiter=a.createDynamicsCompressor();this.limiter.threshold.value=-17;this.limiter.knee.value=16;this.limiter.ratio.value=3;this.limiter.attack.value=.015;this.limiter.release.value=.22;
+  this.master.connect(this.sleep);this.sleep.connect(this.limiter);this.limiter.connect(a.destination);
+  this.fx=a.createGain();this.fx.gain.value=.38;this.fx.connect(this.master);
+  const n=a.sampleRate*9;this.buffers={};
+  for(const type of ['white','pink','brown']){
+   const buffer=a.createBuffer(2,n,a.sampleRate),data=buffer.getChannelData(0);let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0,brown=0;
+   for(let i=0;i<n;i++){const w=Math.random()*2-1;if(type==='white')data[i]=w;else if(type==='brown'){brown=(brown+.018*w)/1.018;data[i]=brown*4.4;}else{b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;data[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.105;b6=w*.115926;}}
+   // A short wrap blend prevents an abrupt loop boundary without long silent gaps.
+   const blend=Math.floor(a.sampleRate*.08);for(let i=0;i<blend;i++){const q=i/blend;data[n-blend+i]=data[n-blend+i]*(1-q)+data[i]*q;}
+   const right=buffer.getChannelData(1);for(let i=0;i<n;i++)right[i]=data[(i+Math.floor(n*.371))%n];
+   this.buffers[type]=buffer;
+  }
+  const specs={ocean:['pink',720,.20,.11],wind:['pink',420,.24,.055],rain:['white',2100,.43,.055],brown:['brown',300,.4,.17],forest:['pink',1250,.30,.064],water:['pink',1100,.48,.083],fire:['brown',930,.5,.13],birds:['pink',1700,.4,.009],night:['pink',1000,.35,.032]};
+  for(const [key]of C.mix){const[type,hz,q,vol]=specs[key];const source=a.createBufferSource();source.buffer=this.buffers[type];source.loop=true;const filter=a.createBiquadFilter();filter.type=key==='brown'?'lowpass':'bandpass';filter.frequency.value=hz;filter.Q.value=q;const high=a.createBiquadFilter();high.type='highpass';high.frequency.value=key==='brown'?35:70;const texture=a.createGain();texture.gain.value=vol;const gain=a.createGain();gain.gain.value=S.levels[key];source.connect(filter);filter.connect(high);high.connect(texture);texture.connect(gain);gain.connect(this.master);source.start(0,rnd(0,8));
+   const lfo=a.createOscillator();lfo.type='sine';lfo.frequency.value=key==='ocean'?.085:key==='water'?.16:.048;const depth=a.createGain();depth.gain.value=vol*(key==='ocean'?.43:.13);lfo.connect(depth);depth.connect(texture.gain);lfo.start();this.channels[key]={gain,filter};
+  }
+  this.setSleep(S.deadline);
+ }
+ async toggle(){
+  try{await this.init();clearTimeout(this.suspendTimer);if(!S.sound){await this.ctx.resume();if(this.ctx.state!=='running')throw Error('声音尚未启动');S.sound=true;this.enabled=true;this.master.gain.cancelScheduledValues(this.ctx.currentTime);this.master.gain.setTargetAtTime(S.volume,this.ctx.currentTime,.7);this.nextBird=this.ctx.currentTime+5;this.nextFire=this.ctx.currentTime+4;}else this.mute();audioUI();}
+  catch(e){S.sound=false;this.enabled=false;audioUI();say('声音暂时没有打开，画面和互动仍然可以使用。');}
+ }
+ mute(){S.sound=false;this.enabled=false;if(this.ctx){const now=this.ctx.currentTime;this.master.gain.cancelScheduledValues(now);this.master.gain.setTargetAtTime(0,now,.2);clearTimeout(this.suspendTimer);this.suspendTimer=setTimeout(()=>{if(!this.enabled)this.ctx.suspend().catch(()=>{});},1500);}audioUI();}
+ volume(v){if(this.ctx&&this.enabled)this.master.gain.setTargetAtTime(v,this.ctx.currentTime,.15);}
+ level(k,v){this.channels[k]?.gain.gain.setTargetAtTime(v,this.ctx.currentTime,.4);}
+ setSleep(deadline){if(!this.ctx)return;const a=this.ctx,now=a.currentTime;this.sleep.gain.cancelScheduledValues(now);this.sleep.gain.setValueAtTime(1,now);if(deadline){const left=Math.max(0,(deadline-Date.now())/1000),fade=Math.min(30,left);this.sleep.gain.setValueAtTime(1,now+left-fade);this.sleep.gain.linearRampToValueAtTime(0,now+left);}this.sleepEnd=deadline;}
+ tone(freq=440,duration=.6,volume=.075,delay=0,end=null){if(!this.ctx||!this.enabled)return;const a=this.ctx,at=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(freq,at);if(end)o.frequency.exponentialRampToValueAtTime(Math.max(30,end),at+duration*.8);g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(volume,at+.045);g.gain.exponentialRampToValueAtTime(.0001,at+duration);o.connect(g);g.connect(this.fx);o.start(at);o.stop(at+duration+.06);o.onended=()=>{o.disconnect();g.disconnect();};}
+ noise(duration=.4,volume=.05,hz=1100,q=.5,delay=0,pan=0,flutter=0){
+  if(!this.ctx||!this.enabled)return;
+  const a=this.ctx,at=a.currentTime+delay,source=a.createBufferSource(),filter=a.createBiquadFilter(),gain=a.createGain(),texture=a.createGain(),stereo=a.createStereoPanner();
+  source.buffer=this.buffers.pink;filter.type='bandpass';filter.frequency.value=hz;filter.Q.value=q;stereo.pan.value=pan;
+  gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(volume,at+Math.min(.09,duration*.18));gain.gain.setTargetAtTime(volume*.4,at+duration*.25,duration*.17);gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+  source.connect(filter);filter.connect(texture);texture.connect(gain);gain.connect(stereo);stereo.connect(this.fx);
+  let lfo,depth;if(flutter){lfo=a.createOscillator();depth=a.createGain();lfo.frequency.value=flutter;texture.gain.value=.72;depth.gain.value=.28;lfo.connect(depth);depth.connect(texture.gain);lfo.start(at);lfo.stop(at+duration);}
+  source.start(at,rnd(0,7));source.stop(at+duration+.025);source.onended=()=>{source.disconnect();filter.disconnect();gain.disconnect();texture.disconnect();stereo.disconnect();lfo?.disconnect();depth?.disconnect();};
+ }
+ chime(base=680){const detune=rnd(.985,1.015);[[1,2.5,.075,0],[2.03,1.55,.019,.008],[2.71,1.15,.009,.015],[4.11,.7,.003,.01]].forEach(([ratio,d,v,t])=>this.tone(base*ratio*detune,d,v,t));this.noise(.07,.009,2600,1);}
+ sfx(type){
+  if(!this.ctx||!this.enabled)return;
+  const now=this.ctx.currentTime;
+  if(type==='pet'){if(now<(this.petAfter||0))return;this.petAfter=now+.8;
+   if(C.index===1){this.noise(1.65,.14,155,.65,0,.08,25);this.noise(1.25,.025,760,.45,.09,-.12,24);}
+   else this.noise(.9,.055,C.index===3?360:650,.5,0,.08,8);
+  }else if(type==='bell'||type==='chime')this.chime(type==='bell'?840:610);
+  else if(type==='pop')this.tone(rnd(800,1100),.085,.045,0,190);
+  else if(['water','ripple','pour','paddle','citrus'].includes(type)){
+   this.noise(type==='pour'?.85:.48,.065,1450,.6,0,-.12);
+   for(let i=0;i<4;i++){const f=rnd(1050,1850);this.tone(f,.065,.018,i*.09+.12,f*1.6);}
+  }else if(type==='shell'){this.tone(1140,.21,.025);this.tone(1725,.13,.012,.16);this.noise(.07,.015,1700,1.2);}
+  else if(type==='nibble'){this.noise(.12,.055,1300,.8);this.noise(.14,.045,1000,.6,.24);}
+  else if(['page','letter'].includes(type)){this.noise(.36,.09,1700,.6,0,-.25);this.noise(.21,.045,670,.6,.16,.2);}
+  else if(['leaves','bamboo','rustle'].includes(type)){this.noise(.55,.06,2200,.45);this.noise(.4,.03,930,.6,.12,.22);}
+  else if(['shoot','lantern','fireflies'].includes(type))this.chime(520);
+  else if(['tea','cocoa','steam'].includes(type))this.noise(.65,.055,950,.55);
+  else if(type==='fire'){this.noise(.08,.085,1500,.5);this.noise(.16,.035,700,.6,.19);}
+  else this.noise(.3,.045,830,.6);
+ }
+ rustle(duration=.3,volume=.018){this.noise(duration,volume*2.3,1600,.55,0,rnd(-.35,.35));}
+
+ tick(){if(!this.ctx||!this.enabled)return;const now=this.ctx.currentTime;if(now>this.nextBird){this.nextBird=now+rnd(11,21);if(S.levels.birds>.01){this.tone(1350,.3,S.levels.birds*.05,0,1750);this.tone(1680,.32,S.levels.birds*.035,.28,1280);}}if(now>this.nextFire){this.nextFire=now+rnd(2,6);if(S.levels.fire>.01)this.rustle(.15,S.levels.fire*.028);}}
+ close(){clearTimeout(this.suspendTimer);if(this.ctx){this.enabled=false;this.ctx.close().catch(()=>{});this.ctx=null;}}
+}
+document.getElementById('run').onclick=async()=>{const results=[];for(const [index,type] of [[1,'pet'],[3,'water'],[8,'chime'],[4,'shell'],[1,'nibble'],[1,'page']]){C={index,mix:[]};S={levels:{},deadline:0};const sound=new SoundGarden();await sound.init();sound.enabled=true;sound.master.gain.value=.24;sound.sfx(type);const b=await sound.ctx.startRendering();let peak=0,tail=0;for(let c=0;c<b.numberOfChannels;c++){const d=b.getChannelData(c);for(let i=0;i<d.length;i++){peak=Math.max(peak,Math.abs(d[i]));if(i>d.length-4410)tail=Math.max(tail,Math.abs(d[i]));}}results.push({type,peak:+peak.toFixed(6),tail:+tail.toFixed(6),pass:peak>0&&peak<.2&&tail<.0001});}document.getElementById('output').textContent=JSON.stringify(results,null,2);};</script>

@@ -1,11 +1,12 @@
-/* Anchored bodies, independent heads and contact-aware petting. */
+/* Continuous animal contours and an articulated cartoon petting hand. */
 (() => {
 'use strict';
 const api=window.IslandCompanion,hit=document.querySelector('.companion-hit'),target=document.querySelector('.companion-touch-target'),motion=document.querySelector('.companion-motion'),art=document.getElementById('art')||document.getElementById('sceneSvg'),head=document.querySelector('.companion-head'),portrait=document.querySelector('.companion-art');
 if(!api||!hit||!head)return;
 const NS='http://www.w3.org/2000/svg',name=api.name,index=+motion.dataset.rig,reduce=matchMedia('(prefers-reduced-motion: reduce)'),fine=matchMedia('(pointer: fine)');
-const face={x:+head.dataset.faceX,y:+head.dataset.faceY},pivot={x:+head.dataset.pivotX,y:+head.dataset.pivotY},expression=head.querySelector('.companion-expression'),tail=document.querySelector('.companion-tail');
+const face={x:+head.dataset.faceX,y:+head.dataset.faceY},pivot={x:+head.dataset.pivotX,y:+head.dataset.pivotY},expression=portrait.querySelector('.companion-expression'),tail=document.querySelector('.companion-tail');
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rig=window.createAnimalRig(portrait);let hand=null,handSide=1;
   const icons = {
     pet: '<path d="M17 41c-7-4-9-13-12-19-2-5 4-8 7-3l4 6V9c0-5 6-5 6 0v12-16c0-5 6-5 6 0v17-14c0-5 6-5 6 0v15-11c0-4 6-4 6 0v18c0 10-6 16-14 16Z" fill="#f5dcc0" stroke="#8e735b" stroke-width="1.8" stroke-linejoin="round"/><path d="M24 30q6-3 10 1" fill="none" stroke="#d4a888" stroke-width="1.6" stroke-linecap="round"/>',
     toy: '<path d="M8 43 27 5" fill="none" stroke="#95765a" stroke-width="3" stroke-linecap="round"/><path d="M27 5q20 1 13 21" fill="none" stroke="#a99c83" stroke-width="1.2"/><path d="M40 23q-17 2-12 16 13 5 16-10Z" fill="#b6c7a2" stroke="#7e9674" stroke-width="1.3"/><path d="m39 26-8 12" stroke="#7e9674" stroke-width="1.2"/><circle cx="40" cy="23" r="3" fill="#dab881"/>',
@@ -43,43 +44,49 @@ icons.toy=toys[index];
 const icon=key=>`<svg viewBox="0 0 48 48" aria-hidden="true">${icons[key]}</svg>`;
 const descriptions={pet:`轻轻摸摸${name}，它会闭眼靠过来。`,toy:`把${profile[0]}移到${name}身边，点一下陪它玩。`,treat:`把${api.snack||'小零食'}送到${name}嘴边。`};
 const shelf=document.createElement('div');shelf.className='companion-shelf';
-shelf.innerHTML=`<div class="companion-label"><strong>陪${name}玩一会儿</strong><small>轻轻碰一下，会有回应</small></div><div class="companion-tools" role="group" aria-label="选择陪伴道具"><button class="companion-tool" type="button" data-tool="pet" aria-pressed="true"><img src="assets/petting-hand.webp" alt="">摸摸手</button><button class="companion-tool" type="button" data-tool="toy" aria-pressed="false">${icon('toy')}${profile[0]}</button><button class="companion-tool" type="button" data-tool="treat" aria-pressed="false">${icon('treat')}小零食</button></div><p class="companion-instruction" id="companionInstruction" aria-live="polite"></p>`;
+shelf.innerHTML=`<div class="companion-label"><strong>陪${name}玩一会儿</strong><small>轻轻碰一下，会有回应</small></div><div class="companion-tools" role="group" aria-label="选择陪伴道具"><button class="companion-tool" type="button" data-tool="pet" aria-pressed="true">${window.CartoonHand.markup()}摸摸手</button><button class="companion-tool" type="button" data-tool="toy" aria-pressed="false">${icon('toy')}${profile[0]}</button><button class="companion-tool" type="button" data-tool="treat" aria-pressed="false">${icon('treat')}小零食</button></div><p class="companion-instruction" id="companionInstruction" aria-live="polite"></p>`;
 document.querySelector('.scene').after(shelf);const instruction=shelf.querySelector('p');hit.setAttribute('aria-describedby','companionInstruction');
 const cursor=document.createElement('div');cursor.className='companion-cursor';cursor.setAttribute('aria-hidden','true');document.body.append(cursor);
 let mode='pet',pointer=null,contact=null,pose='idle',until=0,start=0,reactAt=-Infinity,clickAt=-Infinity,replyTimer;
 let angle=0,dx=0,dy=0,lastFrame=0,clock=0,nextBlink=2.8+index*.37,blinkUntil=0,handling=false,automaticHand=false;
 const toLocal=e=>{const p=art.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(portrait.getScreenCTM().inverse());};
 const toScreen=p=>{const v=art.createSVGPoint();v.x=p.x;v.y=p.y;return v.matrixTransform(portrait.getScreenCTM());};
-function facePoint(offsetY=25){const p=toScreen({x:face.x,y:face.y+offsetY});return api.point({clientX:p.x,clientY:p.y});}
+function facePoint(offsetY=25){const p=toScreen(rig.point(face.x,face.y+offsetY));return api.point({clientX:p.x,clientY:p.y});}
+api.anchor=key=>{
+ const mouths=[[302,264],[493,280],[788,295],[1192,300],[1393,278],[177,703],[484,706],[769,733],[1191,787],[1400,738]];
+ const points={mouth:mouths[index],mug:[173,777],letter:[482,823],toy:index===1?[607,286]:index===4?[1406,385]:index===7?[770,772]:index===8?[1210,795]:[face.x,face.y+65]};
+ const q=points[key]||[face.x,face.y+25],p=toScreen(rig.point(q[0],q[1]));return api.point({clientX:p.x,clientY:p.y});
+};
 function nearby(p,margin=.18){if(!p)return false;const r=target.getBoundingClientRect();return p.x>r.left-r.width*margin&&p.x<r.right+r.width*margin&&p.y>r.top-r.height*margin&&p.y<r.bottom+r.height*margin;}
 function hideCursor(){cursor.classList.remove('is-visible');art.classList.remove('has-companion-cursor');}
-function choose(next){mode=next;reactAt=-Infinity;pose='idle';until=0;automaticHand=false;hit.dataset.state='idle';shelf.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===next)));cursor.dataset.mode=mode;cursor.innerHTML=mode==='pet'?'<img class="petting-hand" src="assets/petting-hand.webp" alt="">':icon(mode);instruction.textContent=descriptions[mode];hit.setAttribute('aria-label',`${{pet:'摸摸',toy:`用${profile[0]}陪`,treat:'喂一份小零食给'}[mode]}${api.fullName||name}`);hideCursor();}
+function choose(next){mode=next;reactAt=-Infinity;pose='idle';until=0;automaticHand=false;hit.dataset.state='idle';shelf.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===next)));cursor.dataset.mode=mode;cursor.innerHTML=mode==='pet'?window.CartoonHand.markup():icon(mode);hand=mode==='pet'?window.CartoonHand.attach(cursor.querySelector('svg')):null;instruction.textContent=descriptions[mode];hit.setAttribute('aria-label',`${{pet:'摸摸',toy:`用${profile[0]}陪`,treat:'喂一份小零食给'}[mode]}${api.fullName||name}`);hideCursor();}
 choose('pet');shelf.addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b){clearTimeout(replyTimer);choose(b.dataset.tool);}});
 function prop(kind){
- const p=facePoint(kind==='treat'?25:65),g=document.createElementNS(NS,'g');g.classList.add('companion-prop');g.innerHTML=icons[kind];art.append(g);
+ const g=document.createElementNS(NS,'g');g.classList.add('companion-prop');g.innerHTML=icons[kind];art.append(g);
  const duration=kind==='treat'?1400:2200,at=performance.now();
- function draw(now){const t=clamp((now-at)/duration,0,1),still=reduce.matches||api.paused();let x=p.x,y=p.y,scale=.8,opacity=1;
+ function draw(now){const t=clamp((now-at)/duration,0,1),still=reduce.matches||api.paused();const p=kind==='treat'?api.anchor('mouth'):api.anchor('toy');let x=p.x,y=p.y,scale=.8,opacity=1;
  if(!still){if(kind==='treat'){const q=clamp(t*2,0,1);x+=45*(1-q);y+=24*(1-q);scale=.85*(1-clamp((t-.45)/.5,0,1)*.88);opacity=1-clamp((t-.86)/.14,0,1);}else{y-=Math.sin(t*Math.PI*3)*5;opacity=Math.min(1,(1-t)*5);}}
+ const pm=portrait.getScreenCTM(),am=art.getScreenCTM();scale*=clamp(Math.hypot(pm.a,pm.b)/Math.hypot(am.a,am.b)/.65,.45,1.5);
  g.setAttribute('transform',`translate(${x-24*scale} ${y-24*scale}) scale(${scale})`);g.setAttribute('opacity',opacity);
  if(t<1&&document.contains(g))requestAnimationFrame(draw);else g.remove();
  }requestAnimationFrame(draw);
 }
 function startPose(kind,e,announce=true,fromEngine=false){
  const now=performance.now();if(!fromEngine&&now-reactAt<420)return;
- reactAt=now;pose=kind;start=now;until=now+(kind==='pet'?2900:kind==='toy'?2400:1800);hit.dataset.state=kind==='pet'?'nuzzling':kind==='toy'?'playing':'eating';
+ const continuing=kind==='pet'&&pose==='pet'&&now<until;reactAt=now;pose=kind;if(!continuing)start=now;until=now+(kind==='pet'?2900:kind==='toy'?2400:1800);hit.dataset.state=kind==='pet'?'nuzzling':kind==='toy'?'playing':'eating';
  automaticHand=!e;if(e)pointer={x:e.clientX,y:e.clientY,type:e.pointerType||'mouse'};
  if(kind==='pet'){
   if(!fromEngine){handling=true;api.pet(facePoint(-30));handling=false;}
   instruction.textContent=index===1?'糯糯闭上眼，把脸颊贴过来，轻轻蹭了蹭你的手。':`${name}闭上眼，轻轻把脑袋靠了过来。`;
  }else if(kind==='toy'){
   instruction.textContent=profile[1];api.sound?.(profile[3]);
-  const p=facePoint(index===3?140:index===5?75:-25);api.effect?.(profile[2],p,index===3?2:index===0?3:1);
-  if([4,7,8].includes(index))prop('toy');
+  const p=index===3?{x:815,y:580}:index===5?api.anchor('mug'):index===6?api.anchor('letter'):facePoint(-25);api.effect?.(profile[2],p,index===3?2:index===0?3:1);
+  if([1,4,7,8].includes(index))prop('toy');
  }else{instruction.textContent=`${name}接住了${api.snack||'小零食'}，慢慢嚼了两下。`;prop('treat');api.sound?.('nibble');}
  if(announce)api.say(instruction.textContent);clearTimeout(replyTimer);replyTimer=setTimeout(()=>instruction.textContent=descriptions[mode],4000);
 }
 art.addEventListener('pointermove',e=>{
- pointer={x:e.clientX,y:e.clientY,type:e.pointerType};
+ pointer={x:e.clientX,y:e.clientY,type:e.pointerType};automaticHand=false;
  if(pose==='pet'&&!nearby(pointer,.25)){until=performance.now();automaticHand=false;}
  if(mode==='toy'&&nearby(pointer,0)&&Math.hypot(e.movementX||0,e.movementY||0)>3&&performance.now()-reactAt>2600)startPose('toy',e,false);
 },{passive:true});
@@ -102,10 +109,11 @@ let visible=true;new IntersectionObserver(entries=>visible=entries[0].isIntersec
 function frame(now){
  requestAnimationFrame(frame);if(document.hidden||!visible){lastFrame=0;return;}
  const dt=Math.min(.04,(now-(lastFrame||now))/1000);lastFrame=now;
+ if(contact&&mode==='pet'&&nearby(pointer,0))until=Math.max(until,now+700);
  const stopped=reduce.matches||api.paused(),active=now<until;if(!stopped)clock+=dt;
  if(!active&&pose!=='idle'){pose='idle';hit.dataset.state='idle';automaticHand=false;}
  if(clock>nextBlink){blinkUntil=clock+.15;nextBlink=clock+4.2+Math.random()*3.3;}
- let tx=0,ty=0,turn=0,local=pointer&&nearby(pointer,.7)?toLocal({clientX:pointer.x,clientY:pointer.y}):null;
+ let tx=0,ty=0,turn=0,local=!automaticHand&&pointer&&nearby(pointer,.7)?toLocal({clientX:pointer.x,clientY:pointer.y}):null;
  if(!stopped){
   if(local){turn=clamp((local.x-face.x)/36,-3.5,3.5);tx=clamp((local.x-face.x)*.035,-4,4);}else turn=Math.sin(clock*.55+index)*.65;
   if(active){const t=(now-start)/1000,fade=Math.min(1,(until-now)/550),side=local&&local.x<face.x-25?-1:1;
@@ -116,16 +124,23 @@ function frame(now){
  }
  const ease=1-Math.exp(-dt*8);angle+=(turn-angle)*ease;dx+=(tx-dx)*ease;dy+=(ty-dy)*ease;
  head.setAttribute('transform',stopped?'':`translate(${dx.toFixed(2)} ${dy.toFixed(2)}) rotate(${angle.toFixed(2)} ${pivot.x} ${pivot.y})`);
- expression.setAttribute('opacity',active&&(pose==='pet'||pose==='treat'||[3,5,7,8].includes(index))||!stopped&&clock<blinkUntil?'1':'0');
+ const closed=active&&(pose==='pet'||pose==='treat'||[3,5,7,8].includes(index))||!stopped&&clock<blinkUntil;expression.setAttribute('opacity',closed?'1':'0');rig.render({angle:stopped?0:angle,x:stopped?0:dx,y:stopped?0:dy,happy:closed?1:0,tail:stopped?0:Math.sin(clock*(active?3.5:1.2))*(active?2.5:1)});
  if(tail){const wag=stopped?0:Math.sin(clock*(active?3.5:1.2))*(active?4:1.7);tail.setAttribute('transform',`rotate(${wag.toFixed(2)} ${tail.dataset.pivotX} ${tail.dataset.pivotY})`);}
  const handActive=mode==='pet'&&active&&pose==='pet',show=handActive||pointer&&pointer.type!=='touch'&&fine.matches&&nearby(pointer,.06);
  cursor.classList.toggle('is-visible',!!show);art.classList.toggle('has-companion-cursor',!!show&&!!pointer&&pointer.type!=='touch');cursor.classList.toggle('is-nuzzling',handActive);
- if(show){const m=portrait.getScreenCTM(),handScale=clamp(Math.hypot(m.a,m.b)*225,80,150)/150;cursor.style.width=mode==='pet'?`${150*handScale}px`:'48px';cursor.style.height=mode==='pet'?`${100*handScale}px`:'48px';let p=pointer?{x:pointer.x,y:pointer.y}:toScreen({x:face.x+80,y:face.y-28});
-  if(handActive){const l=local||{x:face.x+80,y:face.y-28},side=l.x<face.x-25?-1:1;p=toScreen({x:face.x+side*clamp(Math.abs(l.x-face.x),65,102),y:clamp(l.y,face.y-65,face.y-5)});const wave=stopped?0:Math.sin((now-start)/240)*2;cursor.style.setProperty('--hand-angle',`${side*(wave-7)}deg`);cursor.style.setProperty('--hand-flip',side);}
-  else{cursor.style.setProperty('--hand-angle','-5deg');cursor.style.setProperty('--hand-flip','1');}
-  const left=handActive&&local&&local.x<face.x-25,ox=mode==='pet'?(left?133:17)*handScale:24,oy=mode==='pet'?57*handScale:24;
-  cursor.style.transform=`translate3d(${(p.x-ox).toFixed(1)}px,${(p.y-oy).toFixed(1)}px,0)`;
+ if(show){
+  const m=portrait.getScreenCTM(),scale=clamp(Math.hypot(m.a,m.b)*200,76,132)/160,t=(now-start)/1000,stroke=.5-.5*Math.cos(t*4.3);
+  let p=pointer?{x:pointer.x,y:pointer.y}:toScreen({x:face.x+80,y:face.y-28}),anchor={x:24,y:24};
+  if(mode==='pet'){
+   if(local){if(local.x<face.x-45)handSide=-1;else if(local.x>face.x+25)handSide=1;}else if(automaticHand)handSide=1;
+   if(handActive&&automaticHand){const zones=[[210,167,18],[565,206,42],[853,224,33],[1180,220,28],[1490,204,35],[267,634,35],[554,660,28],[859,661,34],[1196,704,28],[1488,658,38]],q=zones[index];p=toScreen(rig.point(q[0],q[1]+(stopped?.5:stroke)*q[2]));}
+   else if(handActive&&!stopped){p.y+=Math.sin(t*4.3)*4*scale;}
+   anchor=hand.pose(stopped?0:handActive?.2+stroke*.72:.04,stopped?0:handActive?-7+stroke*13:-5,handSide);
+   anchor.x*=scale;anchor.y*=scale;cursor.style.width=`${160*scale}px`;cursor.style.height=`${116*scale}px`;
+  }else{cursor.style.width='48px';cursor.style.height='48px';}
+  cursor.style.transform=`translate3d(${(p.x-anchor.x).toFixed(1)}px,${(p.y-anchor.y).toFixed(1)}px,0)`;
  }
+
 }
 requestAnimationFrame(frame);
 })();

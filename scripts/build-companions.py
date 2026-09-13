@@ -23,34 +23,26 @@ RIGS = [
 ]
 
 def rig(index, old):
-    seam, px, py, fx, fy, rx, ry = RIGS[index]
+    seam, px, py, fx, fy, frx, fry = RIGS[index]
     viewport = re.search(r'<svg class="companion-art"([^>]+)>', old)[1]
-    clip = re.search(r'<clipPath id="companionClip">.*?</clipPath>', old)
+    viewport = re.sub(r" data-mesh='[^']*'", '', viewport)
     region = json.loads((ROOT/'assets/animal-regions.json').read_text())['regions'][index]
-    fallback_clip = '<clipPath id="companionClip"><rect x="%s" y="%s" width="%s" height="%s"/></clipPath>' % tuple(region[:4])
-    shape = ' clip-path="url(#companionClip)"'
-    image = f'<image href="assets/animal-atlas.png" width="1568" height="1003"{shape}/>'
-    tail = '<polygon points="608,300 669,300 669,514 576,514 580,452 600,397"/>' if index == 1 else ''
-    foot_black = '<ellipse cx="203" cy="484" rx="42" ry="18" fill="black"/>' if index == 0 else ''
-    tail_defs = f'<clipPath id="tailShape">{tail}</clipPath>' if tail else ''
-    tail_black = tail.replace('/>', ' fill="black"/>') if tail else ''
-    tail_layer = f'<g class="companion-tail" data-pivot-x="594" data-pivot-y="468"><g clip-path="url(#tailShape)">{image}</g></g>' if tail else ''
+    x,y,w,h,polygon=region
+    clip=f'<polygon points="{polygon}"/>' if polygon else f'<rect x="{x}" y="{y}" width="{w}" height="{h}"/>'
+    metadata=json.dumps(dict(index=index, region=region[:4],polygon=polygon,seam=seam,pivot=[px,py],face=[fx,fy,frx,fry]),separators=(',',':'))
+    feet='<ellipse cx="203" cy="484" rx="42" ry="18" fill="black"/>' if index==0 else ''
     return f'''<g class="companion-motion" data-rig="{index}">
-      <svg class="companion-art"{viewport}>
-        <defs>{clip[0] if clip else fallback_clip}{tail_defs}
-          <linearGradient id="headFade" gradientUnits="userSpaceOnUse" x1="0" y1="{seam-18}" x2="0" y2="{seam}"><stop stop-color="white"/><stop offset="1" stop-color="black"/></linearGradient>
-          <linearGradient id="bodyFade" gradientUnits="userSpaceOnUse" x1="0" y1="{seam-38}" x2="0" y2="{seam-24}"><stop stop-color="black"/><stop offset="1" stop-color="white"/></linearGradient>
-          <mask id="bodyMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1568" height="1003"><rect width="1568" height="1003" fill="url(#bodyFade)"/>{tail_black}{foot_black}</mask>
-          <mask id="headMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1568" height="1003"><rect width="1568" height="1003" fill="url(#headFade)"/>{tail_black}</mask>
-          <filter id="faceSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
-          <mask id="faceMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1568" height="1003"><ellipse cx="{fx}" cy="{fy}" rx="{rx}" ry="{ry}" fill="white" filter="url(#faceSoft)"/></mask>
+      <svg class="companion-art"{viewport} data-mesh='{metadata}'>
+        <defs><clipPath id="companionClip">{clip}</clipPath>
+          <mask id="wholeAnimal" maskUnits="userSpaceOnUse" x="0" y="0" width="1568" height="1003"><rect width="1568" height="1003" fill="white"/>{feet}</mask>
+          <mask id="faceMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1568" height="1003"><ellipse cx="{fx}" cy="{fy}" rx="{frx}" ry="{fry}" fill="white"/></mask>
         </defs>
-        {tail_layer}
-        <g mask="url(#bodyMask)">{image}</g>
-        <g class="companion-head" data-pivot-x="{px}" data-pivot-y="{py}" data-face-x="{fx}" data-face-y="{fy}">
-          <g mask="url(#headMask)">{image}</g>
+        <g class="rig-fallback" clip-path="url(#companionClip)">
+          <image href="assets/animal-atlas.png" width="1568" height="1003" mask="url(#wholeAnimal)"/>
           <image class="companion-expression" href="assets/contented-faces.webp" width="1568" height="1003" mask="url(#faceMask)" opacity="0"/>
         </g>
+        <foreignObject class="rig-surface" x="{x-40}" y="{y-40}" width="{w+80}" height="{h+80}" style="display:none"><canvas xmlns="http://www.w3.org/1999/xhtml" class="animal-canvas" style="width:100%;height:100%;display:block"></canvas></foreignObject>
+        <g class="companion-head" data-pivot-x="{px}" data-pivot-y="{py}" data-face-x="{fx}" data-face-y="{fy}"></g>
       </svg>
     </g>'''
 
@@ -70,4 +62,4 @@ source = page.read_text()
 source, count = re.subn(r'<g class="companion-motion"[^>]*>.*?</svg>\s*</g>', lambda m: rig(0, m[0]), source, count=1, flags=re.S)
 assert count == 1
 page.write_text(source)
-print('Built 11 anchored head rigs and repaired both crescent moons.')
+print('Built 11 continuous animal rigs.')

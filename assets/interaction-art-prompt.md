@@ -2,7 +2,9 @@
 
 使用内置 imagegen，2026-09-13。原始输出保留在生成目录，项目消费版本为 WebP 格式转换。
 
-## petting-hand.webp
+## petting-hand.webp（已退役）
+
+写实手已按反馈替换为 `cartoon-hand.js` 的卡通关节手。旧图保存在 `art-archive/`，不再打包或部署。
 
 Use case: photorealistic-natural. Asset: transparent PNG cursor for a gentle animal petting web interaction. One anatomically correct adult right hand, warm natural light-medium skin, relaxed SIDE THREE-QUARTER view, fingers together slightly curved as if stroking a cat forehead. Fingertips point to the LEFT and slightly DOWN, wrist extends to the RIGHT, palm facing down. Entire hand plus a short wrist, no arm, no animal. Natural five fingers, subtle knuckles, soft skin shading, no jewelry, no nail polish, no cutout border. Single hand isolated on a genuinely TRANSPARENT background. Composition a horizontal hand centered with generous transparent margin, lit softly from upper left. Delicate believable realistic rendering, not an emoji, not a flat cartoon. No text or shadow on a floor.
 
