@@ -28,3 +28,6 @@ html { scrollbar-color: #a5b09a #f4f2e9; }
   .section-name small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .image-wrap .preview-art { transition: none; } .card:hover .preview-art { transform: none; } }
+
+.rig-fallback { visibility: hidden; }
+.art-ready .rig-fallback { visibility: visible; }

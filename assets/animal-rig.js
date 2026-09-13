@@ -9,6 +9,7 @@ window.createAnimalRig=(portrait)=>{
  const data=JSON.parse(portrait.dataset.mesh),[rx,ry,w,h]=data.region,pad=40,neck=[data.pivot[0]-rx,data.pivot[1]-ry];
  portrait.dataset.renderer='static-fallback';
  let gl,ready=false,draw=null,pose={angle:0,x:0,y:0,happy:0,tail:0};
+ pictures.then(()=>{if(!ready)fallback.style.visibility='visible';}).catch(()=>{fallback.style.visibility='visible';});
  const rig={render(p){pose=p;if(ready)draw(p);},point(x,y){
   if(!ready)return {x,y};
   const weight=1-smooth(data.seam-20,data.seam+46,y),a=pose.angle*Math.PI/180,ox=x-data.pivot[0],oy=y-data.pivot[1];

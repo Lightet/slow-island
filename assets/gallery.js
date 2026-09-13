@@ -32,3 +32,6 @@
   window.addEventListener('popstate',()=>{const id=location.hash.slice(1);if(Object.hasOwn(pages,id))open(id,false);else home(false);});
   const id=location.hash.slice(1);if(Object.hasOwn(pages,id))open(id,false);
 })();
+
+// Gallery previews share the atlas; reveal complete drawings after decoding.
+(() => {const a=new Image();a.onload=()=>document.documentElement.classList.add('art-ready');a.onerror=a.onload;a.src='assets/animal-atlas.png';})();

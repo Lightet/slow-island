@@ -85,3 +85,6 @@ body:not(.keyboard-input) :is(button,a,input,select,[tabindex]):focus { outline:
 .companion-cursor .petting-hand { width: 100%; height: 100%; display: block; transform: none; transition: none; }
 .companion-cursor[data-mode="pet"] { filter: drop-shadow(0 2px 1px #80614818); }
 .companion-tool[data-tool="pet"] svg { width: 32px; height: 24px; }
+
+/* Reveal the complete sprite only after both textures decode. */
+.rig-fallback { visibility: hidden; }
